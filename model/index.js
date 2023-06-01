@@ -57,5 +57,11 @@ db.department.belongsTo(db.faculty, {
   foreignKey: "faculty_id",
   as: "faculty",
 });
+db.student.belongsTo(db.faculty, { foreignKey: "faculty_id", as: "faculty" });
+db.student.belongsTo(db.department, {
+  foreignKey: "department_id",
+  as: "department",
+});
+db.department.hasMany(db.student);
 
 module.exports = db;

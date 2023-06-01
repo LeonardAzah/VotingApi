@@ -45,7 +45,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
   });
-  // Define the associations
 
   return Student;
 };

@@ -7,9 +7,7 @@ const Student = db.student;
 
 //get all product
 const getAllStudents = async (req, res) => {
-  const result = await Student.findAll({
-    attributes: ["username", "faculty", "department"],
-  });
+  const result = await Student.findAll({});
   res.status(200).send(result);
 };
 
