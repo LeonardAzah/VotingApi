@@ -36,12 +36,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
   });
-  // Define the associations
-  // Admin.associate = (models) => {
-  //   Admin.belongsTo(models.Faculty);
-  //   Admin.belongsTo(models.Department);
-  //   Admin.hasMany(models.Poll);
-  // };
 
   return Admin;
 };

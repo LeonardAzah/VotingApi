@@ -30,24 +30,20 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.admin = require("./Admin")(sequelize, Sequelize);
-db.candidate = require("./Candidate")(sequelize, Sequelize);
+db.facultyCandidate = require("./FacultyCandidate")(sequelize, Sequelize);
+db.departmentalCandidate = require("./DepartmentalCandidate")(
+  sequelize,
+  Sequelize
+);
 db.student = require("./Student")(sequelize, Sequelize);
-db.poll = require("./Poll")(sequelize, Sequelize);
+db.facultyPoll = require("./FacultyPoll")(sequelize, Sequelize);
+db.departmentalPoll = require("./DepartmentalPoll")(sequelize, Sequelize);
 db.faculty = require("./Faculty")(sequelize, Sequelize);
 db.department = require("./Department")(sequelize, Sequelize);
 
 db.sequelize.sync({ force: false }).then(() => {
   console.log("yes sync done!");
 });
-
-// db.poll.belongsTo(db.admin);
-// db.poll.belongsTo(db.faculty);
-// db.poll.belongsTo(db.department);
-// db.poll.hasMany(db.candidate, { as: "candidates" });
-// db.candidate.belongsTo(db.poll, { foreignKey: "candidateId", as: "cadidate" });
-
-// db.student.belongsTo(db.faculty);
-// db.student.belongsTo(db.department);
 
 db.faculty.hasMany(db.department, {
   foreignKey: "faculty_id",
@@ -57,15 +53,50 @@ db.department.belongsTo(db.faculty, {
   foreignKey: "faculty_id",
   as: "faculty",
 });
+
 db.student.belongsTo(db.faculty, { foreignKey: "faculty_id", as: "faculty" });
 db.student.belongsTo(db.department, {
   foreignKey: "department_id",
   as: "department",
 });
+
+db.admin.belongsTo(db.faculty, { foreignKey: "faculty_id", as: "faculty" });
+db.admin.belongsTo(db.department, {
+  foreignKey: "department_id",
+  as: "department",
+});
+
 db.faculty.hasMany(db.student, { foreignKey: "faculty_id", as: "student" });
-// db.department.hasMany(db.student, {
-//   foreignKey: "department_id",
-//   as: "student",
-// });
+db.department.hasMany(db.student, {
+  foreignKey: "department_id",
+  as: "student",
+});
+
+db.departmentalPoll.belongsTo(db.department, {
+  foreignKey: "department_id",
+  as: "department",
+});
+
+db.student.hasMany(db.departmentalCandidate, {
+  foreignKey: "student_id",
+  // as: "student",
+});
+db.departmentalPoll.hasMany(db.departmentalCandidate, {
+  foreignKey: "departmental_poll_id",
+  as: "departmental_poll",
+});
+
+db.facultyPoll.belongsTo(db.faculty, {
+  foreignKey: "faculty_id",
+  as: "faculty",
+});
+db.student.hasMany(db.facultyCandidate, {
+  foreignKey: "student_id",
+  // as: "student",
+});
+db.facultyPoll.hasMany(db.facultyCandidate, {
+  foreignKey: "faculty_poll_id",
+  as: "faculty_poll",
+});
 
 module.exports = db;
