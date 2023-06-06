@@ -95,6 +95,6 @@ db.facultyCandidate.belongsTo(db.student);
 
 db.facultyCandidate.belongsTo(db.facultyPoll, {
   foreignKey: "faculty_poll_id",
-);
+});
 
 module.exports = db;
