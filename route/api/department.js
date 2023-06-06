@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const departmentController = require("../../controller/departmentController");
+const departmentController = require("../../controller/department/departmentController");
 
 router.post(
   "/faculties/:facultyId/departments",

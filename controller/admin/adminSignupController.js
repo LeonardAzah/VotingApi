@@ -14,7 +14,7 @@ const createAdmin = async (req, res) => {
     if (!username || !email || !dateOfBirth || !password)
       return res.status(400).json({ message: "Admin details required" });
 
-    const duplicate = await Student.findOne({ where: { email: email } });
+    const duplicate = await Admin.findOne({ where: { email: email } });
 
     if (duplicate)
       return res.status(409).json({ message: "Admin already exist" });
@@ -37,6 +37,8 @@ const createAdmin = async (req, res) => {
       dateOfBirth: dateOfBirth,
       password: hashedPwd,
     });
+    await result.setDepartment(department);
+    await result.setFaculty(faculty);
     res.status(201).json({ result });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -44,5 +46,5 @@ const createAdmin = async (req, res) => {
 };
 
 module.exports = {
-  createStudent,
+  createAdmin,
 };

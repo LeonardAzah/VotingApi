@@ -10,6 +10,7 @@ const createStudent = async (req, res) => {
   try {
     const { username, email, matricule, sex, dateOfBirth, password } = req.body;
     const { facultyId, departmentId } = req.params;
+    console.log(facultyId, departmentId);
 
     if (!username || !email || !matricule || !sex || !dateOfBirth || !password)
       return res.status(400).json({ message: "User details required" });
@@ -40,10 +41,11 @@ const createStudent = async (req, res) => {
       matricule: matricule,
       sex: sex,
       dateOfBirth: dateOfBirth,
-      faculty: facultyId,
-      department: departmentId,
       password: hashedPwd,
     });
+    await result.setDepartment(department);
+    await result.setFaculty(faculty);
+
     res.status(201).json({ result });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -54,27 +56,27 @@ module.exports = {
   createStudent,
 };
 
-createStudent = async (req, res) => {
-  try {
-    const { facultyId, departmentId } = req.params;
-    const { name } = req.body;
+// createStudent = async (req, res) => {
+//   try {
+//     const { facultyId, departmentId } = req.params;
+//     const { name } = req.body;
 
-    const faculty = await Faculty.findByPk(facultyId);
-    const department = await Department.findByPk(departmentId);
+//     const faculty = await Faculty.findByPk(facultyId);
+//     const department = await Department.findByPk(departmentId);
 
-    if (!faculty) {
-      return res.status(404).json({ error: "Faculty not found" });
-    }
+//     if (!faculty) {
+//       return res.status(404).json({ error: "Faculty not found" });
+//     }
 
-    if (!department) {
-      return res.status(404).json({ error: "Department not found" });
-    }
+//     if (!department) {
+//       return res.status(404).json({ error: "Department not found" });
+//     }
 
-    const student = await Student.create({ name });
-    await student.setDepartment(department);
+//     const student = await Student.create({ name });
+//     await student.setDepartment(department);
 
-    res.status(201).json(student);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create student" });
-  }
-};
+//     res.status(201).json(student);
+//   } catch (error) {
+//     res.status(500).json({ error: "Failed to create student" });
+//   }
+// };

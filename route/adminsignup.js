@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const AdminSigninController = require("../server");
+const AdminSigninController = require("../controller/admin/adminSignupController");
 
-router.post("/", AdminSigninController.studentLogin);
+router.post("/:facultyId/:departmentId", AdminSigninController.createAdmin);
 module.exports = router;

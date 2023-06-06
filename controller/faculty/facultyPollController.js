@@ -11,7 +11,7 @@ const FacultyPoll = db.facultyPoll;
 const createFacultyPoll = async (req, res) => {
   try {
     const { facultyId } = req.params;
-    const { title, startTime, endTime } = req.body;
+    const { title, startDate, endDate } = req.body;
 
     const faculty = await Faculty.findByPk(facultyId);
 
@@ -20,9 +20,9 @@ const createFacultyPoll = async (req, res) => {
     }
 
     const poll = await FacultyPoll.create({
-      title,
-      startTime,
-      endTime,
+      title: title,
+      startDate: startDate,
+      endDate: endDate,
       active: false, // Initially set the poll as inactive
     });
 
@@ -40,7 +40,7 @@ const getFacultyPollById = async (req, res) => {
     const { pollId } = req.params;
 
     const poll = await FacultyPoll.findByPk(pollId, {
-      include: [Faculty],
+      // include: ["Faculty"],
     });
 
     if (!poll) {

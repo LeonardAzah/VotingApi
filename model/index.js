@@ -90,13 +90,11 @@ db.facultyPoll.belongsTo(db.faculty, {
   foreignKey: "faculty_id",
   as: "faculty",
 });
-db.student.hasMany(db.facultyCandidate, {
-  foreignKey: "student_id",
-  // as: "student",
-});
-db.facultyPoll.hasMany(db.facultyCandidate, {
+
+db.facultyCandidate.belongsTo(db.student);
+
+db.facultyCandidate.belongsTo(db.facultyPoll, {
   foreignKey: "faculty_poll_id",
-  as: "faculty_poll",
-});
+);
 
 module.exports = db;

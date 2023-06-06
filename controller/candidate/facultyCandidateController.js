@@ -14,23 +14,24 @@ const createFacultyCandidate = async (req, res) => {
     const { pollId } = req.params;
     const { name, matricule, bio } = req.body;
 
-    // Check if the student exists
+    // Check if the student exists based on the matricule
     const student = await Student.findOne({ where: { matricule } });
 
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
 
-    const electionPoll = await FacultyPoll.findByPk(pollId);
+    const facultyPoll = await FacultyPoll.findByPk(pollId);
+    // console.log(facultyPoll);
 
-    if (!electionPoll) {
+    if (!facultyPoll) {
       return res.status(404).json({ error: "Election poll not found" });
     }
 
-    const candidate = await FacultyCandidate.create({ name, bio, matricule });
+    const candidate = await FacultyCandidate.create({ name, matricule, bio });
 
-    await electionPoll.addCandidate(candidate);
-    await student.addCandidate(candidate);
+    await candidate.setStudent(student);
+    await candidate.setFacultyPoll(facultyPoll);
 
     res.status(201).json(candidate);
   } catch (error) {

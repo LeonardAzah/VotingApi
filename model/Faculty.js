@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
   Faculty.prototype.addDepartment = function (department) {
     return department.setFaculty(this);
   };
+  Faculty.prototype.addFacultyPoll = function (poll) {
+    return poll.setFaculty(this);
+  };
 
   return Faculty;
 };

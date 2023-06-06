@@ -1,9 +1,7 @@
-const db = require("../model");
+const db = require("../../model");
 //create main Model
 
 const Faculty = db.faculty;
-const Department = db.department;
-
 // main work
 
 const createFaculty = async (req, res) => {
