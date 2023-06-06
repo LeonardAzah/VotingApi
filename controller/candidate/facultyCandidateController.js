@@ -21,17 +21,17 @@ const createFacultyCandidate = async (req, res) => {
       return res.status(404).json({ error: "Student not found" });
     }
 
-    const facultyPoll = await FacultyPoll.findByPk(pollId);
+    const poll = await FacultyPoll.findByPk(pollId);
     // console.log(facultyPoll);
 
-    if (!facultyPoll) {
+    if (!poll) {
       return res.status(404).json({ error: "Election poll not found" });
     }
 
     const candidate = await FacultyCandidate.create({ name, matricule, bio });
 
     await candidate.setStudent(student);
-    await candidate.setFacultyPoll(facultyPoll);
+    await candidate.setFacultyPoll(poll);
 
     res.status(201).json(candidate);
   } catch (error) {
@@ -55,6 +55,7 @@ const getFacultyCandidateByMatricule = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch candidate" });
   }
 };
+
 const getAllFacultyCandidates = async (req, res) => {
   try {
     const candidates = await FacultyCandidate.findAll();
@@ -68,15 +69,15 @@ const getFacultyCandidatesByPollId = async (req, res) => {
   try {
     const { pollId } = req.params;
 
-    const electionPoll = await FacultyCandidate.findByPk(pollId, {
-      include: [{ model: FacultyCandidate }],
-    });
+    const electionPoll = await FacultyPoll.findByPk(pollId);
 
     if (!electionPoll) {
-      return res.status(404).json({ error: "Faculty election poll not found" });
+      return res.status(404).json({ error: "Election poll not found" });
     }
 
-    const candidates = FacultyPoll.FacultyCandidate;
+    const candidates = await FacultyCandidate.findAll({
+      where: { faculty_poll_id: pollId },
+    });
 
     res.status(200).json(candidates);
   } catch (error) {

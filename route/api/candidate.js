@@ -5,7 +5,7 @@ const router = express.Router();
 router.post("/:pollId", candidateController.createFacultyCandidate);
 router.get("/", candidateController.getAllFacultyCandidates);
 router.get("/:matricule", candidateController.getFacultyCandidateByMatricule);
-router.get("/:pollId", candidateController.getFacultyCandidatesByPollId);
+router.get("/byPoll/:pollId", candidateController.getFacultyCandidatesByPollId);
 
 router.patch(
   "/:matricule",
