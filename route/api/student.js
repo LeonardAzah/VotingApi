@@ -2,7 +2,10 @@ const express = require("express");
 const studentController = require("../../controller/student/studentController");
 const router = express.Router();
 
-router.post("/vote", studentController.castFacultyVote);
+router.post(
+  "/vote/:studentId/poll/:pollId/candidate/:candidateId",
+  studentController.castFacultyVote
+);
 router.get("/", studentController.getAllStudents);
 router.get("/:studentId", studentController.getOneStudent);
 router.get(
