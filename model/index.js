@@ -40,6 +40,7 @@ db.facultyPoll = require("./FacultyPoll")(sequelize, Sequelize);
 db.departmentalPoll = require("./DepartmentalPoll")(sequelize, Sequelize);
 db.faculty = require("./Faculty")(sequelize, Sequelize);
 db.department = require("./Department")(sequelize, Sequelize);
+db.vote = require("./Vote")(sequelize, Sequelize);
 
 db.sequelize.sync({ force: false }).then(() => {
   console.log("yes sync done!");
@@ -95,6 +96,16 @@ db.facultyCandidate.belongsTo(db.student);
 
 db.facultyCandidate.belongsTo(db.facultyPoll, {
   foreignKey: "faculty_poll_id",
+});
+
+db.vote.belongsTo(db.facultyPoll, {
+  foreignKey: "pollId",
+});
+db.vote.belongsTo(db.student, {
+  foreignKey: "studentId",
+});
+db.vote.belongsTo(db.facultyCandidate, {
+  foreignKey: "candidateId",
 });
 
 module.exports = db;

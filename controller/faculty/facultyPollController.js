@@ -1,8 +1,12 @@
 const db = require("../../model");
+const { sequelize, DataTypes, fn } = require("sequelize");
+
 //create main Model
 
 const Faculty = db.faculty;
 const FacultyPoll = db.facultyPoll;
+const Vote = db.vote;
+const FacultyCandidate = db.facultyCandidate;
 
 // main work
 
@@ -35,21 +39,26 @@ const createFacultyPoll = async (req, res) => {
 };
 
 // Get a faculty election poll by ID
-const getFacultyPollById = async (req, res) => {
+const getFacultyCandidatesWithVotes = async (req, res) => {
   try {
     const { pollId } = req.params;
 
-    const poll = await FacultyPoll.findByPk(pollId, {
-      // include: ["Faculty"],
+    const candidateVotes = await Vote.findAll({
+      where: { PollId: pollId },
+      attributes: ["CandidateId", [fn("COUNT", "CandidateId"), "voteCount"]],
+      include: [
+        {
+          model: FacultyCandidate,
+          attributes: ["id", "name"],
+        },
+      ],
+      group: ["CandidateId", "FacultyCandidate.id"],
     });
 
-    if (!poll) {
-      return res.status(404).json({ error: "Faculty election poll not found" });
-    }
-
-    res.status(200).json(poll);
+    res.status(200).json(candidateVotes);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch faculty election poll" });
+    // res.status(500).json({ error: "Failed to retrieve candidate votes" });
+    res.status(500).json(error.message);
   }
 };
 
@@ -57,20 +66,19 @@ const getFacultyPollById = async (req, res) => {
 const updateFacultyPoll = async (req, res) => {
   try {
     const { pollId } = req.params;
-    const { title, startTime, endTime } = req.body;
+    const { title, startDate, endDate } = req.body;
 
-    const poll = await FacultyPoll.findByPk(pollId, {
-      include: [Faculty],
-    });
+    const poll = await FacultyPoll.findByPk(pollId);
 
     if (!poll) {
       return res.status(404).json({ error: "Faculty election poll not found" });
     }
+    console.log(poll);
 
     await poll.update({
-      title,
-      startTime,
-      endTime,
+      title: title,
+      startDate: startDate,
+      endDate: endDate,
     });
 
     res.status(200).json(poll);
@@ -99,7 +107,7 @@ const deleteFacultyPoll = async (req, res) => {
 };
 module.exports = {
   createFacultyPoll,
-  getFacultyPollById,
+  getFacultyCandidatesWithVotes,
   updateFacultyPoll,
   deleteFacultyPoll,
 };

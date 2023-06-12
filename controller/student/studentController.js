@@ -8,6 +8,7 @@ const FacultyPoll = db.facultyPoll;
 const DepartmentalPoll = db.DepartmentalPoll;
 const FacultyCandidate = db.facultyCandidate;
 const DepartmentalCandidate = db.departmentalCandidate;
+const Vote = db.vote;
 
 // main work
 
@@ -110,7 +111,31 @@ const deleteStudent = async (req, res) => {
   }
 };
 
-const castFacultyVote = async (req, res) => {
+const hasVoted = async (req, res) => {
+  try {
+    const { pollId, studentId } = req.params;
+
+    const poll = await FacultyPoll.findByPk(pollId);
+
+    if (!poll) {
+      return res.status(404).json({ error: "Poll not found" });
+    }
+
+    const student = await Student.findByPk(studentId);
+
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    const hasVoted = await poll.hasStudent(student);
+
+    res.status(200).json({ message: "Student has already cast a vote" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to check if student has voted" });
+  }
+};
+
+const voteForCandidate = async (req, res) => {
   try {
     const { studentId, pollId, candidateId } = req.params;
 
@@ -132,19 +157,33 @@ const castFacultyVote = async (req, res) => {
       return res.status(404).json({ error: "Candidate not found" });
     }
 
+    // Check if the student is eligible to vote in the poll
+    // const isEligible = await electionPoll.hasStudent(student);
+
+    // if (!isEligible) {
+    //   return res
+    //     .status(400)
+    //     .json({ error: "Student is not eligible to vote in this poll" });
+    // }
+
     // Check if the poll is active (between the start and end time)
     const currentTime = new Date();
-    const startTime = new Date(electionPoll.startTime);
-    const endTime = new Date(electionPoll.endTime);
+    const startTime = new Date(electionPoll.startDate);
+    const endTime = new Date(electionPoll.endDate);
 
-    if (currentTime < startTime || currentTime > endTime) {
-      return res
-        .status(400)
-        .json({ error: "Voting is not active for this poll" });
-    }
+    // if (currentTime < startTime || currentTime > endTime) {
+    //   return res
+    //     .status(400)
+    //     .json({ error: "Voting is not active for this poll" });
+    // }
 
     // Check if the student has already voted in the same poll
-    const hasVoted = await student.hasVotedIn(electionPoll);
+    const hasVoted = await Vote.findOne({
+      where: {
+        pollId: pollId,
+        studentId: studentId,
+      },
+    });
 
     if (hasVoted) {
       return res
@@ -152,12 +191,19 @@ const castFacultyVote = async (req, res) => {
         .json({ error: "Student has already voted in this poll" });
     }
 
-    // Cast the vote by associating the candidate with the student
-    await student.addVote(FacultyCandidate, { through: { PollId: pollId } });
+    // Cast the vote by creating a new entry in the Vote table
+    const vote = await Vote.create({
+      pollId: pollId,
+      studentId: studentId,
+      candidateId: candidateId,
+    });
+    await vote.setFacultyPoll(electionPoll);
+    await vote.setStudent(student);
+    await vote.setFacultyCandidate(candidate);
 
     res.status(200).json({ message: "Vote cast successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to cast vote" });
+    res.status(500).json(error.message);
   }
 };
 
@@ -168,5 +214,5 @@ module.exports = {
   getStudentsByFaculty,
   updateStudent,
   deleteStudent,
-  castFacultyVote,
+  voteForCandidate,
 };

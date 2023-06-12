@@ -26,5 +26,14 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
+  FacultyPoll.prototype.hasVotedBy = async function (student) {
+    const voteCount = await this.countStudents({ where: { id: student.id } });
+    return voteCount > 0;
+  };
+
+  FacultyPoll.prototype.addVote = async function (candidate, { through }) {
+    await this.addStudent(through.StudentId, { through });
+  };
+
   return FacultyPoll;
 };

@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.post(
   "/vote/:studentId/poll/:pollId/candidate/:candidateId",
-  studentController.castFacultyVote
+  studentController.voteForCandidate
 );
 router.get("/", studentController.getAllStudents);
 router.get("/:studentId", studentController.getOneStudent);
