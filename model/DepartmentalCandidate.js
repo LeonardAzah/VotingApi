@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const DepartmentalCandidate = sequelize.define("departmental_candidate", {
+  const DepartmentalCandidate = sequelize.define("departmentalCandidate", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,

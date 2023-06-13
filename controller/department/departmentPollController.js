@@ -3,6 +3,7 @@ const db = require("../../model");
 
 const Department = db.department;
 const DepartmentPoll = db.departmentalPoll;
+const DepartmentalCandidate = db.departmentalCandidate;
 
 // main work
 
@@ -10,19 +11,19 @@ const DepartmentPoll = db.departmentalPoll;
 
 const createDepartmentPoll = async (req, res) => {
   try {
-    const { departmentId } = req.params;
-    const { title, startTime, endTime } = req.body;
+    const { facultyId } = req.params;
+    const { title, startDate, endDate } = req.body;
 
-    const department = await Department.findByPk(departmentId);
+    const department = await Department.findByPk(facultyId);
 
     if (!department) {
       return res.status(404).json({ error: "Department not found" });
     }
 
     const poll = await DepartmentPoll.create({
-      title,
-      startTime,
-      endTime,
+      title: title,
+      startDate: startDate,
+      endDate: endDate,
       active: false, // Initially set the poll as inactive
     });
 
@@ -30,9 +31,7 @@ const createDepartmentPoll = async (req, res) => {
 
     res.status(201).json(poll);
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Failed to create department election poll" });
+    res.status(500).json({ error: "Failed to create faculty election poll" });
   }
 };
 
@@ -41,21 +40,21 @@ const getDepartmentPollById = async (req, res) => {
   try {
     const { pollId } = req.params;
 
-    const poll = await DepartmentPoll.findByPk(pollId, {
-      include: [Department],
+    const candidateVotes = await Vote.findAll({
+      where: { PollId: pollId },
+      attributes: ["CandidateId", [fn("COUNT", "CandidateId"), "voteCount"]],
+      include: [
+        {
+          model: DepartmentalCandidate,
+          attributes: ["id", "name"],
+        },
+      ],
+      group: ["CandidateId", "DepartmentalCandidate.id"],
     });
 
-    if (!poll) {
-      return res
-        .status(404)
-        .json({ error: "Department election poll not found" });
-    }
-
-    res.status(200).json(poll);
+    res.status(200).json(candidateVotes);
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Failed to fetch departmental election poll" });
+    res.status(500).json({ error: "Failed to retrieve candidate votes" });
   }
 };
 
@@ -63,25 +62,24 @@ const getDepartmentPollById = async (req, res) => {
 const updateDepartmentPoll = async (req, res) => {
   try {
     const { pollId } = req.params;
-    const { title, startTime, endTime } = req.body;
+    const { title, startDate, endDate } = req.body;
 
-    const poll = await DepartmentPoll.findByPk(pollId, {
-      include: [Department],
-    });
+    const poll = await DepartmentPoll.findByPk(pollId);
 
     if (!poll) {
       return res
         .status(404)
-        .json({ error: "Department election poll not found" });
+        .json({ error: "Departmental election poll not found" });
     }
+    console.log(poll);
 
     await poll.update({
-      title,
-      startTime,
-      endTime,
+      title: title,
+      startDate: startDate,
+      endDate: endDate,
     });
 
-    res.status(200).json(poll);
+    res.status(200).json({ message: "Poll updated successfully" });
   } catch (error) {
     res
       .status(500)

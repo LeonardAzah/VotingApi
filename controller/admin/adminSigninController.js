@@ -1,4 +1,4 @@
-const db = require("../model");
+const db = require("../../model");
 const Admin = db.admin;
 
 const bycrypt = require("bcrypt");

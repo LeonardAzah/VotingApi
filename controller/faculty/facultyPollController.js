@@ -57,8 +57,7 @@ const getFacultyCandidatesWithVotes = async (req, res) => {
 
     res.status(200).json(candidateVotes);
   } catch (error) {
-    // res.status(500).json({ error: "Failed to retrieve candidate votes" });
-    res.status(500).json(error.message);
+    res.status(500).json({ error: "Failed to retrieve candidate votes" });
   }
 };
 

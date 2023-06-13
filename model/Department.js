@@ -1,4 +1,3 @@
-// const Faculty = require("../model/Faculty");
 module.exports = (sequelize, DataTypes) => {
   const Department = sequelize.define("department", {
     id: {
