@@ -8,7 +8,6 @@ const userLogout = async (req, res) => {
     const cookies = req.cookie;
     if (!cookies?.jwt) return res.sendStatus(204);
     const refreshToken = cookies.jwt;
-    console.log(refreshToken);
 
     const foundUser = await Admin.findOne({
       where: { refreshtoken: refreshToken },
@@ -24,7 +23,7 @@ const userLogout = async (req, res) => {
     }
 
     //delet refresh token in db
-    foundUser.refreshtoken = "";
+    foundUser.refreshtoken = null;
     const result = await foundUser.save();
     res.clearCookie("jwt", {
       httpOnly: true,
@@ -57,7 +56,7 @@ const userStudent = async (req, res) => {
     }
 
     //delet refresh token in db
-    foundUser.refreshtoken = "";
+    foundUser.refreshtoken = null;
     const result = await foundUser.save();
     res.clearCookie("jwt", {
       httpOnly: true,

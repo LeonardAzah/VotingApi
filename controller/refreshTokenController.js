@@ -35,7 +35,7 @@ const userRefreshToken = async (req, res) => {
   });
 };
 const userRefreshTokenstd = async (req, res) => {
-  const cookie = req.cookie;
+  const cookie = req.cookies;
 
   if (!cookie?.jwt) return res.sendStatus(401);
 
@@ -50,6 +50,8 @@ const userRefreshTokenstd = async (req, res) => {
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     if (err || foundUser.username != decoded.username)
       return res.sendStatus(403);
+
+    const username = foundUser.username;
 
     const accessToken = jwt.sign(
       {

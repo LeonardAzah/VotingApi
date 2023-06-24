@@ -12,5 +12,12 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
+  Department.prototype.addDepartment = function (department) {
+    return department.setDepartment(this);
+  };
+  Department.prototype.addDepartmentPoll = function (poll) {
+    return poll.setDepartment(this);
+  };
+
   return Department;
 };

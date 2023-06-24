@@ -33,12 +33,12 @@ const createDepartmentCandidate = async (req, res) => {
       matricule,
     });
 
-    await electionPoll.addCandidate(candidate);
-    await student.addCandidate(candidate);
+    await candidate.setStudent(student);
+    await candidate.setDepartmentalPoll(electionPoll);
 
     res.status(201).json(candidate);
   } catch (error) {
-    res.status(500).json({ error: "Failed to create candidate" });
+    res.status(500).json(error.message);
   }
 };
 
@@ -74,15 +74,15 @@ const getDepartmentCandidatesByPollId = async (req, res) => {
   try {
     const { pollId } = req.params;
 
-    const electionPoll = await DepartmentCandidate.findByPk(pollId, {
-      include: [{ model: DepartmentCandidate }],
-    });
+    const electionPoll = await DepartmetnPoll.findByPk(pollId);
 
     if (!electionPoll) {
-      return res.status(404).json({ error: "Faculty election poll not found" });
+      return res.status(404).json({ error: "Election poll not found" });
     }
 
-    const candidates = DepartmetnPoll.DepartmentCandidate;
+    const candidates = await DepartmentCandidate.findAll({
+      where: { faculty_poll_id: pollId },
+    });
 
     res.status(200).json(candidates);
   } catch (error) {

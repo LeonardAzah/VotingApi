@@ -4,6 +4,7 @@ const db = require("../../model");
 const Department = db.department;
 const DepartmentPoll = db.departmentalPoll;
 const DepartmentalCandidate = db.departmentalCandidate;
+const DepartmentVote = db.departmentvote;
 
 // main work
 
@@ -11,10 +12,10 @@ const DepartmentalCandidate = db.departmentalCandidate;
 
 const createDepartmentPoll = async (req, res) => {
   try {
-    const { facultyId } = req.params;
+    const { departmentId } = req.params;
     const { title, startDate, endDate } = req.body;
 
-    const department = await Department.findByPk(facultyId);
+    const department = await Department.findByPk(departmentId);
 
     if (!department) {
       return res.status(404).json({ error: "Department not found" });
@@ -27,7 +28,7 @@ const createDepartmentPoll = async (req, res) => {
       active: false, // Initially set the poll as inactive
     });
 
-    await department.addFacultyPoll(poll);
+    await department.addDepartmentPoll(poll);
 
     res.status(201).json(poll);
   } catch (error) {
@@ -35,12 +36,31 @@ const createDepartmentPoll = async (req, res) => {
   }
 };
 
-// Get a faculty election poll by ID
-const getDepartmentPollById = async (req, res) => {
+const getPollsByDepartment = async (req, res) => {
+  try {
+    const { departmentId } = req.params;
+
+    const department = await Department.findByPk(departmentId);
+
+    if (!department) {
+      return res.status(404).json({ error: "Department not found" });
+    }
+
+    const polls = await DepartmentPoll.findAll({
+      where: { department_id: departmentId },
+    });
+
+    res.status(200).json(polls);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to retrieve polls" });
+  }
+};
+
+const getDepartmetnCandidatesWithVotes = async (req, res) => {
   try {
     const { pollId } = req.params;
 
-    const candidateVotes = await Vote.findAll({
+    const candidateVotes = await DepartmentVote.findAll({
       where: { PollId: pollId },
       attributes: ["CandidateId", [fn("COUNT", "CandidateId"), "voteCount"]],
       include: [
@@ -111,7 +131,7 @@ const deleteDepartmentPoll = async (req, res) => {
 };
 module.exports = {
   createDepartmentPoll,
-  getDepartmentPollById,
+  getPollsByDepartment,
   updateDepartmentPoll,
   deleteDepartmentPoll,
 };

@@ -41,6 +41,7 @@ db.departmentalPoll = require("./DepartmentalPoll")(sequelize, Sequelize);
 db.faculty = require("./Faculty")(sequelize, Sequelize);
 db.department = require("./Department")(sequelize, Sequelize);
 db.vote = require("./Vote")(sequelize, Sequelize);
+db.departmentvote = require("./DepartmentVote")(sequelize, Sequelize);
 
 db.sequelize.sync({ force: false }).then(() => {
   console.log("yes sync done!");
@@ -78,14 +79,14 @@ db.departmentalPoll.belongsTo(db.department, {
   as: "department",
 });
 
-db.student.hasMany(db.departmentalCandidate, {
-  foreignKey: "student_id",
-  // as: "student",
-});
-db.departmentalPoll.hasMany(db.departmentalCandidate, {
-  foreignKey: "departmental_poll_id",
-  as: "departmental_poll",
-});
+// db.student.hasMany(db.departmentalCandidate, {
+//   foreignKey: "student_id",
+//   // as: "student",
+// });
+// db.departmentalPoll.hasMany(db.departmentalCandidate, {
+//   foreignKey: "departmental_poll_id",
+//   as: "departmental_poll",
+// });
 
 db.facultyPoll.belongsTo(db.faculty, {
   foreignKey: "faculty_id",
@@ -98,6 +99,12 @@ db.facultyCandidate.belongsTo(db.facultyPoll, {
   foreignKey: "faculty_poll_id",
 });
 
+db.departmentalCandidate.belongsTo(db.student);
+
+db.departmentalCandidate.belongsTo(db.departmentalPoll, {
+  foreignKey: "departmental_poll_id",
+});
+
 db.vote.belongsTo(db.facultyPoll, {
   foreignKey: "pollId",
 });
@@ -105,6 +112,16 @@ db.vote.belongsTo(db.student, {
   foreignKey: "studentId",
 });
 db.vote.belongsTo(db.facultyCandidate, {
+  foreignKey: "candidateId",
+});
+
+db.departmentvote.belongsTo(db.departmentalPoll, {
+  foreignKey: "pollId",
+});
+db.departmentvote.belongsTo(db.student, {
+  foreignKey: "studentId",
+});
+db.departmentvote.belongsTo(db.departmentalCandidate, {
   foreignKey: "candidateId",
 });
 

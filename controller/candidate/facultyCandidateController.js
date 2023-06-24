@@ -4,6 +4,7 @@ const db = require("../../model");
 const FacultyCandidate = db.facultyCandidate;
 const Student = db.student;
 const FacultyPoll = db.facultyPoll;
+const Faculty = db.faculty;
 
 // main work
 
