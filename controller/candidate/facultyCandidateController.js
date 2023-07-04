@@ -5,6 +5,8 @@ const FacultyCandidate = db.facultyCandidate;
 const Student = db.student;
 const FacultyPoll = db.facultyPoll;
 const Faculty = db.faculty;
+const DepartmetnPoll = db.departmentalPoll;
+const DepartmentCandidate = db.departmentalCandidate;
 
 // main work
 
@@ -22,19 +24,30 @@ const createFacultyCandidate = async (req, res) => {
       return res.status(404).json({ error: "Student not found" });
     }
 
-    const poll = await FacultyPoll.findByPk(pollId);
-    // console.log(facultyPoll);
+    const facultypoll = await FacultyPoll.findByPk(pollId);
+    const departmentPoll = await DepartmetnPoll.findByPk(pollId);
 
-    if (!poll) {
+    if (facultypoll) {
+      const candidate = await FacultyCandidate.create({ name, matricule, bio });
+
+      await candidate.setStudent(student);
+      await candidate.setFacultyPoll(facultypoll);
+
+      res.status(201).json(candidate);
+    } else if (departmentPoll) {
+      const candidate = await DepartmentCandidate.create({
+        name,
+        bio,
+        matricule,
+      });
+
+      await candidate.setStudent(student);
+      await candidate.setDepartmentalPoll(departmentPoll);
+
+      res.status(201).json(candidate);
+    } else {
       return res.status(404).json({ error: "Election poll not found" });
     }
-
-    const candidate = await FacultyCandidate.create({ name, matricule, bio });
-
-    await candidate.setStudent(student);
-    await candidate.setFacultyPoll(poll);
-
-    res.status(201).json(candidate);
   } catch (error) {
     res.status(500).json({ error: "Failed to create candidate" });
   }

@@ -11,31 +11,45 @@ const DepartmentalPoll = db.departmentalPoll;
 const Department = db.department;
 const DepartmentalCandidate = db.departmentalCandidate;
 const DepartmentVote = db.departmentvote;
+const DepartmentPoll = db.departmentalPoll;
+
 // main work
 
 // 1 create product
 
 const createFacultyPoll = async (req, res) => {
   try {
-    const { facultyId } = req.params;
+    const { Id } = req.params;
     const { title, startDate, endDate } = req.body;
+    console.log(title, startDate, endDate);
 
-    const faculty = await Faculty.findByPk(facultyId);
+    const faculty = await Faculty.findByPk(Id);
+    const department = await Department.findByPk(Id);
+    if (faculty) {
+      const poll = await FacultyPoll.create({
+        title: title,
+        startDate: startDate,
+        endDate: endDate,
+        active: false, // Initially set the poll as inactive
+      });
 
-    if (!faculty) {
-      return res.status(404).json({ error: "Faculty not found" });
+      await faculty.addFacultyPoll(poll);
+
+      res.status(201).json({ message: "Election created successfully" });
+    } else if (department) {
+      const poll = await DepartmentPoll.create({
+        title: title,
+        startDate: startDate,
+        endDate: endDate,
+        active: false, // Initially set the poll as inactive
+      });
+
+      await department.addDepartmentPoll(poll);
+
+      res.status(201).json({ message: "Election created successfully" });
+    } else {
+      return res.status(404).json({ error: "Not found" });
     }
-
-    const poll = await FacultyPoll.create({
-      title: title,
-      startDate: startDate,
-      endDate: endDate,
-      active: false, // Initially set the poll as inactive
-    });
-
-    await faculty.addFacultyPoll(poll);
-
-    res.status(201).json(poll);
   } catch (error) {
     res.status(500).json({ error: "Failed to create faculty election poll" });
   }
@@ -116,23 +130,20 @@ const getFacultyCandidatesWithVotes = async (req, res) => {
 //get candidates in poll
 const getCandidatesByPoll = async (req, res) => {
   try {
-    const { pollId } = req.params;
+    const { Id } = req.params;
 
-    const facultypoll = await FacultyPoll.findByPk(pollId);
-    const deptpoll = await DepartmentalPoll.findByPk(pollId);
+    const facultypoll = await FacultyPoll.findByPk(Id);
+    const deptpoll = await DepartmentalPoll.findByPk(Id);
 
-    // if (!poll) {
-    //   return res.status(404).json({ error: "Poll not found" });
-    // }
     if (facultypoll) {
       const candidates = await FacultyCandidate.findAll({
-        where: { faculty_poll_id: pollId },
+        where: { faculty_poll_id: Id },
       });
 
       res.status(200).json(candidates);
     } else if (deptpoll) {
       const candidates = await DepartmentalCandidate.findAll({
-        where: { departmental_poll_id: pollId },
+        where: { departmental_poll_id: Id },
       });
 
       res.status(200).json(candidates);

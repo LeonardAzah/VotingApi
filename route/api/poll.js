@@ -3,13 +3,13 @@ const pollController = require("../../controller/faculty/facultyPollController")
 const departmentalPoll = require("../../controller/department/departmentPollController");
 const router = express.Router();
 
-router.post("/:facultyId", pollController.createFacultyPoll);
+router.post("/:Id", pollController.createFacultyPoll);
 router.get(
   "/faculty/:facultyId/department/:departmentId",
   pollController.getPollsByFaculty
 );
 router.get("/votes/:pollId", pollController.getFacultyCandidatesWithVotes);
-router.get("/candidates/:pollId", pollController.getCandidatesByPoll);
+router.get("/candidates/:Id", pollController.getCandidatesByPoll);
 
 router.put("/:pollId", pollController.updateFacultyPoll);
 router.delete("/:pollId", pollController.deleteFacultyPoll);
