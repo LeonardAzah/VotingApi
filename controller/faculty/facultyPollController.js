@@ -1,5 +1,5 @@
-const db = require("../../model");
-const { sequelize, DataTypes, fn } = require("sequelize");
+const { db, sequelize } = require("../../model");
+const { Sequelize, DataTypes, fn } = require("sequelize");
 
 //create main Model
 
@@ -26,6 +26,11 @@ const createFacultyPoll = async (req, res) => {
     const faculty = await Faculty.findByPk(Id);
     const department = await Department.findByPk(Id);
     if (faculty) {
+      const duplicate = await FacultyPoll.findOne({ where: { title: title } });
+      if (duplicate) {
+        return res.status(409).json({ error: "Election poll already exist" });
+      }
+
       const poll = await FacultyPoll.create({
         title: title,
         startDate: startDate,
@@ -37,6 +42,13 @@ const createFacultyPoll = async (req, res) => {
 
       res.status(201).json({ message: "Election created successfully" });
     } else if (department) {
+      const duplicate = await DepartmentPoll.findOne({
+        where: { title: title },
+      });
+      if (duplicate) {
+        return res.status(409).json({ message: "Election poll already exist" });
+      }
+
       const poll = await DepartmentPoll.create({
         title: title,
         startDate: startDate,
@@ -92,31 +104,33 @@ const getFacultyCandidatesWithVotes = async (req, res) => {
     const facultypoll = await FacultyPoll.findByPk(pollId);
     const deptpoll = await DepartmentalPoll.findByPk(pollId);
     if (facultypoll) {
-      const candidateVotes = await Vote.findAll({
-        where: { PollId: pollId },
-        attributes: ["CandidateId", [fn("COUNT", "CandidateId"), "voteCount"]],
-        include: [
-          {
-            model: FacultyCandidate,
-            attributes: ["id", "name"],
-          },
-        ],
-        group: ["CandidateId", "FacultyCandidate.id"],
-      });
+      const facultyCandidateVotes = await sequelize.query(
+        `SELECT FacultyCandidates.id, FacultyCandidates.name, COUNT(Votes.CandidateId) AS voteCount
+      FROM FacultyCandidates
+      LEFT JOIN Votes ON Votes.CandidateId = FacultyCandidates.id
+      WHERE FacultyCandidates.faculty_poll_id = :pollId
+      GROUP BY FacultyCandidates.id
+      ORDER BY voteCount DESC`,
+        {
+          replacements: { pollId },
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
 
-      res.status(200).json(candidateVotes);
+      res.status(200).json(facultyCandidateVotes);
     } else if (deptpoll) {
-      const candidateDepartmentVotes = await DepartmentVote.findAll({
-        where: { PollId: pollId },
-        attributes: ["CandidateId", [fn("COUNT", "CandidateId"), "voteCount"]],
-        include: [
-          {
-            model: DepartmentalCandidate,
-            attributes: ["id", "name"],
-          },
-        ],
-        group: ["CandidateId", "DepartmentalCandidate.id"],
-      });
+      const candidateDepartmentVotes = await sequelize.query(
+        `SELECT DepartmentalCandidates.id,  DepartmentalCandidates.name, COUNT(DepartmentVotes.CandidateId) AS voteCount
+        FROM DepartmentalCandidates
+        LEFT JOIN DepartmentVotes ON DepartmentVotes.CandidateId = DepartmentalCandidates.id
+        WHERE DepartmentalCandidates.departmental_poll_id = :pollId
+        GROUP BY DepartmentalCandidates.id
+        ORDER BY voteCount DESC`,
+        {
+          replacements: { pollId },
+          type: sequelize.QueryTypes.SELECT,
+        }
+      );
 
       res.status(200).json(candidateDepartmentVotes);
     } else {

@@ -125,4 +125,4 @@ db.departmentvote.belongsTo(db.departmentalCandidate, {
   foreignKey: "candidateId",
 });
 
-module.exports = db;
+module.exports = { db, sequelize };

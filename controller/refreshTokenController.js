@@ -1,6 +1,6 @@
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const db = require("../model");
+const { db } = require("../model");
 const Admin = db.admin;
 const Student = db.student;
 

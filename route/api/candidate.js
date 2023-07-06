@@ -5,14 +5,11 @@ const router = express.Router();
 
 router.post("/:pollId", candidateController.createFacultyCandidate);
 router.get("/", candidateController.getAllFacultyCandidates);
-router.get("/:matricule", candidateController.getFacultyCandidateByMatricule);
+router.get("/:Id", candidateController.getFacultyCandidateByMatricule);
 router.get("/byPoll/:pollId", candidateController.getFacultyCandidatesByPollId);
 
-router.patch(
-  "/:matricule",
-  candidateController.updateFacultyCandidateByMatricule
-);
-router.delete("/:matricule", candidateController.deleteCandidateByMatricule);
+router.patch("/:Id", candidateController.updateFacultyCandidateByMatricule);
+router.delete("/:Id", candidateController.deleteCandidateByMatricule);
 
 router.post(
   "/department/:pollId",

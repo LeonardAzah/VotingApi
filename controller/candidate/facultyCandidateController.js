@@ -1,9 +1,10 @@
-const db = require("../../model");
+const { db } = require("../../model");
 //create main Model
 
 const FacultyCandidate = db.facultyCandidate;
 const Student = db.student;
 const FacultyPoll = db.facultyPoll;
+const Department = db.department;
 const Faculty = db.faculty;
 const DepartmetnPoll = db.departmentalPoll;
 const DepartmentCandidate = db.departmentalCandidate;
@@ -28,6 +29,13 @@ const createFacultyCandidate = async (req, res) => {
     const departmentPoll = await DepartmetnPoll.findByPk(pollId);
 
     if (facultypoll) {
+      const duplicate = await FacultyCandidate.findOne({
+        where: { faculty_poll_id: pollId, matricule: matricule },
+      });
+      if (duplicate) {
+        return res.status(409).json({ error: "Candidate already exist" });
+      }
+
       const candidate = await FacultyCandidate.create({ name, matricule, bio });
 
       await candidate.setStudent(student);
@@ -35,6 +43,13 @@ const createFacultyCandidate = async (req, res) => {
 
       res.status(201).json(candidate);
     } else if (departmentPoll) {
+      const duplicate = await DepartmentCandidate.findOne({
+        where: { departmental_poll_id: pollId, matricule: matricule },
+      });
+      if (duplicate) {
+        return res.status(409).json({ error: "Candidate poll already exist" });
+      }
+
       const candidate = await DepartmentCandidate.create({
         name,
         bio,
@@ -56,15 +71,20 @@ const createFacultyCandidate = async (req, res) => {
 // Get a candidate by student's matricule
 const getFacultyCandidateByMatricule = async (req, res) => {
   try {
-    const { matricule } = req.params;
+    const { Id } = req.params;
 
-    const candidate = await FacultyCandidate.findOne({ where: { matricule } });
+    const fCandidate = await FacultyCandidate.findOne({ where: { id: Id } });
+    const dCandidate = await DepartmentCandidate.findOne({
+      where: { id: Id },
+    });
 
-    if (!candidate) {
+    if (fCandidate) {
+      res.status(200).json(fCandidate);
+    } else if (dCandidate) {
+      res.status(200).json(dCandidate);
+    } else {
       return res.status(404).json({ error: "Candidate not found" });
     }
-
-    res.status(200).json(candidate);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch candidate" });
   }
@@ -102,37 +122,49 @@ const getFacultyCandidatesByPollId = async (req, res) => {
 // Update a candidate by student's matricule
 const updateFacultyCandidateByMatricule = async (req, res) => {
   try {
-    const { matricule } = req.params;
+    const { Id } = req.params;
     const { name, bio } = req.body;
 
-    const candidate = await FacultyCandidate.findOne({ where: { matricule } });
+    const fCandidate = await FacultyCandidate.findOne({ where: { id: Id } });
+    const dCandidate = await DepartmentCandidate.findOne({
+      where: { id: Id },
+    });
 
-    if (!candidate) {
+    if (fCandidate) {
+      await fCandidate.update({ name, bio });
+      res.status(200).json({ message: "Candidate updated successfully" });
+    } else if (dCandidate) {
+      await dCandidate.update({ name, bio });
+      res.status(200).json({ message: "Candidate updated successfully" });
+    } else {
       return res.status(404).json({ error: "Candidate not found" });
     }
-
-    await candidate.update({ name, bio });
-
-    res.status(200).json(candidate);
   } catch (error) {
-    res.status(500).json({ error: "Failed to update candidate" });
+    res.status(500).json({ error: "Failed to delete candidate" });
   }
 };
 
 // Delete a candidate by student's matricule
 const deleteCandidateByMatricule = async (req, res) => {
   try {
-    const { matricule } = req.params;
+    const { Id } = req.params;
 
-    const candidate = await FacultyCandidate.findOne({ where: { matricule } });
+    const fCandidate = await FacultyCandidate.findOne({ where: { id: Id } });
+    const dCandidate = await DepartmentCandidate.findOne({
+      where: { id: Id },
+    });
 
-    if (!candidate) {
+    if (fCandidate) {
+      await fCandidate.destroy();
+
+      res.status(200).json({ message: "Candidate deleted successfully" });
+    } else if (dCandidate) {
+      await dCandidate.destroy();
+
+      res.status(200).json({ message: "Candidate deleted successfully" });
+    } else {
       return res.status(404).json({ error: "Candidate not found" });
     }
-
-    await candidate.destroy();
-
-    res.status(204).json();
   } catch (error) {
     res.status(500).json({ error: "Failed to delete candidate" });
   }

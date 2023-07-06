@@ -1,4 +1,4 @@
-const db = require("../../model");
+const { db } = require("../../model");
 const bycrypt = require("bcrypt");
 
 const Student = db.student;
@@ -12,8 +12,8 @@ const createStudent = async (req, res) => {
     const { facultyId, departmentId } = req.params;
     console.log(facultyId, departmentId);
 
-    if (!username || !email || !matricule || !sex || !dateOfBirth || !password)
-      return res.status(400).json({ message: "User details required" });
+    // if (!username || !email || !matricule || !sex || !dateOfBirth || !password)
+    //   return res.status(400).json({ message: "User details required" });
 
     const duplicate = await Student.findOne({
       where: { matricule: matricule },
@@ -46,37 +46,12 @@ const createStudent = async (req, res) => {
     await result.setDepartment(department);
     await result.setFaculty(faculty);
 
-    res.status(201).json({ result });
+    res.status(201).json({ message: "Student created successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: "Failed to create student" });
   }
 };
 
 module.exports = {
   createStudent,
 };
-
-// createStudent = async (req, res) => {
-//   try {
-//     const { facultyId, departmentId } = req.params;
-//     const { name } = req.body;
-
-//     const faculty = await Faculty.findByPk(facultyId);
-//     const department = await Department.findByPk(departmentId);
-
-//     if (!faculty) {
-//       return res.status(404).json({ error: "Faculty not found" });
-//     }
-
-//     if (!department) {
-//       return res.status(404).json({ error: "Department not found" });
-//     }
-
-//     const student = await Student.create({ name });
-//     await student.setDepartment(department);
-
-//     res.status(201).json(student);
-//   } catch (error) {
-//     res.status(500).json({ error: "Failed to create student" });
-//   }
-// };

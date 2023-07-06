@@ -1,4 +1,4 @@
-const db = require("../../model");
+const { db } = require("../../model");
 const Admin = db.admin;
 
 const bycrypt = require("bcrypt");
@@ -54,7 +54,8 @@ const adminLogin = async (req, res) => {
       });
     }
   } catch (err) {
-    res.status(500).json({ message: "Email and password invalid" });
+    // res.status(500).json({ message: "Email and password invalid" });
+    res.status(500).json(err.message);
   }
 };
 
