@@ -10,8 +10,9 @@ router.get(
 );
 router.get("/votes/:pollId", pollController.getFacultyCandidatesWithVotes);
 router.get("/candidates/:Id", pollController.getCandidatesByPoll);
+router.get("/:Id", pollController.getPollById);
 
-router.put("/:pollId", pollController.updateFacultyPoll);
+router.patch("/:Id", pollController.updateFacultyPoll);
 router.delete("/:pollId", pollController.deleteFacultyPoll);
 
 router.post("/department/:departmentId", departmentalPoll.createDepartmentPoll);

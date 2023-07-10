@@ -21,7 +21,6 @@ const createFacultyPoll = async (req, res) => {
   try {
     const { Id } = req.params;
     const { title, startDate, endDate } = req.body;
-    console.log(title, startDate, endDate);
 
     const faculty = await Faculty.findByPk(Id);
     const department = await Department.findByPk(Id);
@@ -86,12 +85,26 @@ const getPollsByFaculty = async (req, res) => {
     const polls = await FacultyPoll.findAll({
       where: { faculty_id: facultyId },
     });
-    console.log(polls);
-    const departmentpolls = await DepartmentalPoll.findAll({
+
+    const facultyPolls = polls.map((poll) => {
+      return {
+        ...poll.toJSON(),
+        isActive: isPollActive(poll.startDate, poll.endDate),
+      };
+    });
+
+    const dpolls = await DepartmentalPoll.findAll({
       where: { department_id: departmentId },
     });
-    console.log(departmentpolls);
-    res.status(200).json({ polls, departmentpolls });
+
+    const departmentpolls = dpolls.map((poll) => {
+      return {
+        ...poll.toJSON(),
+        isActive: isPollActive(poll.startDate, poll.endDate),
+      };
+    });
+
+    res.status(200).json({ facultyPolls, departmentpolls });
   } catch (error) {
     res.status(500).json({ error: "Failed to retrieve polls" });
   }
@@ -165,31 +178,60 @@ const getCandidatesByPoll = async (req, res) => {
       return res.status(404).json({ error: "Poll not found" });
     }
   } catch (error) {
-    // res.status(500).json({ error: "Failed to retrieve candidates" });
-    res.status(500).json(error.message);
+    res.status(500).json({ error: "Failed to retrieve candidates" });
+  }
+};
+
+const getPollById = async (req, res) => {
+  try {
+    const { Id } = req.params;
+
+    const fPoll = await FacultyPoll.findOne({ where: { id: Id } });
+    const dPoll = await DepartmentPoll.findOne({
+      where: { id: Id },
+    });
+
+    if (fPoll) {
+      res.status(200).json(fPoll);
+    } else if (dPoll) {
+      res.status(200).json(dPoll);
+    } else {
+      return res.status(404).json({ error: "Election not found" });
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch candidate" });
   }
 };
 
 // Update a faculty election poll
 const updateFacultyPoll = async (req, res) => {
   try {
-    const { pollId } = req.params;
+    const { Id } = req.params;
     const { title, startDate, endDate } = req.body;
 
-    const poll = await FacultyPoll.findByPk(pollId);
-
-    if (!poll) {
-      return res.status(404).json({ error: "Faculty election poll not found" });
-    }
-    console.log(poll);
-
-    await poll.update({
-      title: title,
-      startDate: startDate,
-      endDate: endDate,
+    const fPoll = await FacultyPoll.findOne({ where: { id: Id } });
+    const dPoll = await DepartmentPoll.findOne({
+      where: { id: Id },
     });
 
-    res.status(200).json(poll);
+    if (fPoll) {
+      await fPoll.update({
+        title: title,
+        startDate: startDate,
+        endDate: endDate,
+      });
+
+      res.status(200).json(fPoll);
+    } else if (dPoll) {
+      await dPoll.update({
+        title: title,
+        startDate: startDate,
+        endDate: endDate,
+      });
+      res.status(200).json(dPoll);
+    } else {
+      return res.status(404).json({ error: "Election not found" });
+    }
   } catch (error) {
     res.status(500).json({ error: "Failed to update faculty election poll" });
   }
@@ -213,11 +255,20 @@ const deleteFacultyPoll = async (req, res) => {
     res.status(500).json({ error: "Failed to delete faculty election poll" });
   }
 };
+
+const isPollActive = (startDate, endDate) => {
+  const currentDate = new Date();
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  return currentDate >= start && currentDate <= end;
+};
+
 module.exports = {
   createFacultyPoll,
   getPollsByFaculty,
   getFacultyCandidatesWithVotes,
   getCandidatesByPoll,
+  getPollById,
   updateFacultyPoll,
   deleteFacultyPoll,
 };

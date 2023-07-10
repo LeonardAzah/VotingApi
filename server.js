@@ -22,6 +22,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 //routers
+
 app.use("/signup", require("./route/signupStd"));
 app.use("/signin", require("./route/signinStd"));
 
@@ -29,6 +30,7 @@ app.use("/adminSignin", require("./route/adminSign"));
 app.use("/adminSignup", require("./route/adminsignup"));
 
 app.use(verifyJWT);
+app.use("/refresh", require("./route/refresh"));
 
 app.use("/faculties", require("./route/api/faculty"));
 app.use("/dept", require("./route/api/department"));
@@ -37,7 +39,6 @@ app.use("/admin", require("./route/api/admin"));
 app.use("/candidate", require("./route/api/candidate"));
 app.use("/poll", require("./route/api/poll"));
 app.use("/logout", require("./route/logout"));
-app.use("/refresh", require("./route/refresh"));
 
 //server
 app.listen(PORT, () => {
