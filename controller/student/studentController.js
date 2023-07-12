@@ -173,11 +173,11 @@ const voteForCandidate = async (req, res) => {
       const startTime = new Date(electionPoll.startDate);
       const endTime = new Date(electionPoll.endDate);
 
-      // if (currentTime < startTime || currentTime > endTime) {
-      //   return res
-      //     .status(400)
-      //     .json({ error: "Voting is not active for this poll" });
-      // }
+      if (currentTime < startTime || currentTime > endTime) {
+        return res
+          .status(400)
+          .json({ error: "Voting is not active for this poll" });
+      }
 
       // Check if the student has already voted in the same poll
       const hasVoted = await Vote.findOne({
@@ -217,11 +217,11 @@ const voteForCandidate = async (req, res) => {
       const startTime = new Date(departmentPoll.startDate);
       const endTime = new Date(departmentPoll.endDate);
 
-      // if (currentTime < startTime || currentTime > endTime) {
-      //   return res
-      //     .status(400)
-      //     .json({ error: "Voting is not active for this poll" });
-      // }
+      if (currentTime < startTime || currentTime > endTime) {
+        return res
+          .status(400)
+          .json({ error: "Voting is not active for this poll" });
+      }
       // Check if the student has already voted in the same poll
       const hasVoted = await DepartmentVote.findOne({
         where: {
