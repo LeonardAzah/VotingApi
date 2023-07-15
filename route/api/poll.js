@@ -17,7 +17,6 @@ router.delete("/:pollId", pollController.deleteFacultyPoll);
 
 router.post("/department/:departmentId", departmentalPoll.createDepartmentPoll);
 router.get("/department/:departmentId", departmentalPoll.getPollsByDepartment);
-// router.get("/:pollId", departmentalPoll.getDepartmentPollById);
 router.put("/:pollId", departmentalPoll.updateDepartmentPoll);
 router.delete("/:pollId", departmentalPoll.deleteDepartmentPoll);
 

@@ -8,20 +8,18 @@ const studentLogin = async (req, res) => {
   try {
     const { matricule, password } = req.body;
     if (!matricule || !password)
-      return res
-        .status(400)
-        .json({ message: "Matricule and password required" });
+      return res.status(400).json({ error: "Matricule and password required" });
 
     const foundUser = await Student.findOne({
       where: { matricule: matricule },
     });
+    if (!foundUser)
+      return res.status(500).json({ error: "Invalid email and password" });
 
-    if (!foundUser) return res.sendStatus(401);
     const match = await bycrypt.compare(password, foundUser.password);
 
     if (match) {
       //create jwts
-
       const accessToken = jwt.sign(
         {
           username: foundUser.username,
@@ -55,9 +53,11 @@ const studentLogin = async (req, res) => {
         department: `${foundUser.department_id}`,
         accessToken,
       });
+    } else {
+      res.status(500).json({ error: "Invalid matricule and password" });
     }
   } catch (err) {
-    res.status(500).json({ message: "Matricule and password invalid" });
+    res.status(500).json({ error: "Invalid matricule and password" });
   }
 };
 

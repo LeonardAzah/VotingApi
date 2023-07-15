@@ -1,5 +1,8 @@
 const { db, sequelize } = require("../../model");
 const { Sequelize, DataTypes, fn } = require("sequelize");
+const multer = require("multer");
+const fs = require("fs");
+const NodeRSA = require("node-rsa");
 
 //create main Model
 
@@ -12,10 +15,30 @@ const Department = db.department;
 const DepartmentalCandidate = db.departmentalCandidate;
 const DepartmentVote = db.departmentvote;
 const DepartmentPoll = db.departmentalPoll;
+const Student = db.student;
+const DepartmentCandidate = db.departmentalCandidate;
 
 // main work
 
 // 1 create product
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images/uploads");
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix);
+  },
+});
+
+// Create Multer upload instance
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB in bytes
+  },
+});
 
 const createFacultyPoll = async (req, res) => {
   try {
@@ -114,44 +137,143 @@ const getPollsByFaculty = async (req, res) => {
 const getFacultyCandidatesWithVotes = async (req, res) => {
   try {
     const { pollId } = req.params;
+
     const facultypoll = await FacultyPoll.findByPk(pollId);
     const deptpoll = await DepartmentalPoll.findByPk(pollId);
+
     if (facultypoll) {
-      const facultyCandidateVotes = await sequelize.query(
-        `SELECT FacultyCandidates.id, FacultyCandidates.name, COUNT(Votes.CandidateId) AS voteCount
-      FROM FacultyCandidates
-      LEFT JOIN Votes ON Votes.CandidateId = FacultyCandidates.id
-      WHERE FacultyCandidates.faculty_poll_id = :pollId
-      GROUP BY FacultyCandidates.id
-      ORDER BY voteCount DESC`,
-        {
-          replacements: { pollId },
-          type: sequelize.QueryTypes.SELECT,
-        }
-      );
+      const candidates = await FacultyCandidate.findAll({
+        where: { faculty_poll_id: pollId },
+        attributes: ["id", "name", "image", "publicKey", "privateKey"],
+      });
 
-      res.status(200).json(facultyCandidateVotes);
+      // Retrieve all votes for the poll
+      const votes = await Vote.findAll({ where: { PollId: pollId } });
+
+      // Count the votes for each candidate
+      const voteCounts = {};
+
+      candidates.forEach((candidate) => {
+        voteCounts[candidate.id] = {
+          candidateId: candidate.id,
+          count: 0,
+          name: candidate.name,
+          image: candidate.image,
+        };
+      });
+
+      // Verify the signature and decrypt the votes
+      votes.forEach((vote) => {
+        const encryptedVote = vote.encryptedVote;
+        const signature = vote.signature;
+        candidates.forEach((candidate) => {
+          const { id, publicKey, privateKey } = candidate;
+
+          try {
+            // Create RSA key pair from the candidate's public key and private key
+            const publicKeyObj = new NodeRSA(publicKey, "pkcs8-public-pem");
+            const privateKeyObj = new NodeRSA(privateKey, "pkcs8-private-pem");
+
+            // Verify the digital signature
+            const isSignatureValid = publicKeyObj.verify(
+              encryptedVote,
+              signature,
+              "utf8",
+              "base64"
+            );
+            console.log(isSignatureValid);
+
+            // Decrypt the vote using the candidate's private key
+            let decryptedVote;
+            try {
+              decryptedVote = privateKeyObj.decrypt(encryptedVote, "utf8");
+            } catch (error) {
+              return;
+            }
+
+            const { pollId, candidateId } = JSON.parse(decryptedVote);
+
+            if (pollId === pollId) {
+              voteCounts[candidateId].count++;
+            }
+          } catch (error) {
+            console.error(`Error for candidate with ID ${id}:`, error);
+          }
+        });
+      });
+
+      const candidateVotes = Object.values(voteCounts);
+
+      res.status(200).json({ candidateVotes });
     } else if (deptpoll) {
-      const candidateDepartmentVotes = await sequelize.query(
-        `SELECT DepartmentalCandidates.id,  DepartmentalCandidates.name, COUNT(DepartmentVotes.CandidateId) AS voteCount
-        FROM DepartmentalCandidates
-        LEFT JOIN DepartmentVotes ON DepartmentVotes.CandidateId = DepartmentalCandidates.id
-        WHERE DepartmentalCandidates.departmental_poll_id = :pollId
-        GROUP BY DepartmentalCandidates.id
-        ORDER BY voteCount DESC`,
-        {
-          replacements: { pollId },
-          type: sequelize.QueryTypes.SELECT,
-        }
-      );
+      const candidates = await DepartmentalCandidate.findAll({
+        where: { departmental_poll_id: pollId },
+        attributes: ["id", "name", "image", "publicKey", "privateKey"],
+      });
 
-      res.status(200).json(candidateDepartmentVotes);
+      // Retrieve all votes for the poll
+      const votes = await Vote.findAll({ where: { PollId: pollId } });
+
+      // Count the votes for each candidate
+      const voteCounts = {};
+
+      candidates.forEach((candidate) => {
+        voteCounts[candidate.id] = {
+          candidateId: candidate.id,
+          count: 0,
+          name: candidate.name,
+          image: candidate.image,
+        };
+      });
+
+      // Verify the signature and decrypt the votes
+      votes.forEach((vote) => {
+        const encryptedVote = vote.encryptedVote;
+        const signature = vote.signature;
+        candidates.forEach((candidate) => {
+          const { id, publicKey, privateKey } = candidate;
+
+          try {
+            // Create RSA key pair from the candidate's public key and private key
+            const publicKeyObj = new NodeRSA(publicKey, "pkcs8-public-pem");
+            const privateKeyObj = new NodeRSA(privateKey, "pkcs8-private-pem");
+
+            // Verify the digital signature
+            const isSignatureValid = publicKeyObj.verify(
+              encryptedVote,
+              signature,
+              "utf8",
+              "base64"
+            );
+            console.log(isSignatureValid);
+
+            // Decrypt the vote using the candidate's private key
+            let decryptedVote;
+            try {
+              decryptedVote = privateKeyObj.decrypt(encryptedVote, "utf8");
+            } catch (error) {
+              return;
+            }
+
+            const { pollId, candidateId } = JSON.parse(decryptedVote);
+
+            if (pollId === pollId) {
+              voteCounts[candidateId].count++;
+            }
+          } catch (error) {
+            console.error(`Error for candidate with ID ${id}:`, error);
+          }
+        });
+      });
+
+      const candidateVotes = Object.values(voteCounts);
+
+      res.status(200).json({ candidateVotes });
     } else {
       return res.status(404).json({ error: "Poll not found" });
     }
   } catch (error) {
-    // res.status(500).json({ error: "Failed to retrieve candidate votes" });
-    res.status(500).json(error.message);
+    res.status(500).json({ error: "Failed to retrieve candidate votes" });
   }
 };
 //get candidates in poll

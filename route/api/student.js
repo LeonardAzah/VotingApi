@@ -6,10 +6,6 @@ router.post(
   "/vote/:studentId/poll/:pollId/candidate/:candidateId",
   studentController.voteForCandidate
 );
-router.post(
-  "/vote-department/:studentId/poll/:pollId/candidate/:candidateId",
-  studentController.voteForDepartmentCandidate
-);
 router.get("/", studentController.getAllStudents);
 router.get("/:studentId", studentController.getOneStudent);
 router.get(

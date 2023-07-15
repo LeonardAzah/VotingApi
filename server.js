@@ -31,7 +31,7 @@ app.use("/signin", require("./route/signinStd"));
 app.use("/adminSignin", require("./route/adminSign"));
 app.use("/adminSignup", require("./route/adminsignup"));
 
-// app.use(verifyJWT);
+app.use(verifyJWT);
 app.use("/refresh", require("./route/refresh"));
 
 app.use("/faculties", require("./route/api/faculty"));

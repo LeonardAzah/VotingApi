@@ -22,6 +22,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    publicKey: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    privateKey: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
   });
 
   return FacultyCandidate;

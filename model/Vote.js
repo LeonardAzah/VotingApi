@@ -6,6 +6,14 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       allowNull: false,
     },
+    encryptedVote: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    signature: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
   });
 
   return Vote;

@@ -1,6 +1,7 @@
 const { db } = require("../../model");
 const multer = require("multer");
 const fs = require("fs");
+const NodeRSA = require("node-rsa");
 
 //create main Model
 
@@ -46,6 +47,28 @@ const createFacultyCandidate = async (req, res) => {
 
       const { filename } = req.file;
 
+      // Generate RSA key pair
+      const key = new NodeRSA({ b: 512 }); // Change the key size as needed
+      const PEM_HEADER = "-----BEGIN PUBLIC KEY-----";
+      const PEM_FOOTER = "-----END PUBLIC KEY-----";
+
+      const publicKey = key
+        .exportKey("pkcs8-public")
+        .replace(/\n/g, "")
+        .replace(PEM_HEADER, "")
+        .replace(PEM_FOOTER, "");
+
+      const EM_HEADER = "-----BEGIN PRIVATE KEY-----";
+      const EM_FOOTER = "-----END PRIVATE KEY-----";
+
+      const privateKey = key
+        .exportKey("pkcs8-private")
+        .replace(/\n/g, "")
+        .replace(EM_HEADER, "")
+        .replace(EM_FOOTER, "");
+
+      console.log(publicKey, privateKey);
+
       // Check if the student exists based on the matricule
       const student = await Student.findOne({ where: { matricule } });
 
@@ -54,7 +77,7 @@ const createFacultyCandidate = async (req, res) => {
       }
 
       const facultypoll = await FacultyPoll.findByPk(pollId);
-      const departmentPoll = await DepartmetnPoll.findByPk(pollId);
+      const departmentPoll = await DepartmentPoll.findByPk(pollId);
 
       if (facultypoll) {
         const duplicate = await FacultyCandidate.findOne({
@@ -69,12 +92,14 @@ const createFacultyCandidate = async (req, res) => {
           matricule,
           bio,
           image: filename,
+          publicKey: publicKey,
+          privateKey: privateKey,
         });
 
         await candidate.setStudent(student);
         await candidate.setFacultyPoll(facultypoll);
 
-        res.status(201).json(candidate);
+        res.status(201).json({ message: "Candidate created successfully" });
       } else if (departmentPoll) {
         const duplicate = await DepartmentCandidate.findOne({
           where: { departmental_poll_id: pollId, matricule: matricule },
@@ -90,12 +115,14 @@ const createFacultyCandidate = async (req, res) => {
           bio,
           matricule,
           image: filename,
+          publicKey: publicKey,
+          privateKey: privateKey,
         });
 
         await candidate.setStudent(student);
         await candidate.setDepartmentalPoll(departmentPoll);
 
-        res.status(201).json(candidate);
+        res.status(201).json({ message: "Candidate created successfully" });
       } else {
         return res.status(404).json({ error: "Election poll not found" });
       }

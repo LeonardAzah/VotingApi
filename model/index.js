@@ -98,6 +98,7 @@ db.facultyCandidate.belongsTo(db.student);
 db.facultyCandidate.belongsTo(db.facultyPoll, {
   foreignKey: "faculty_poll_id",
 });
+// db.facultyPoll.hasMany(db.facultyCandidate, { foreignKey: "faculty_poll_id" });
 
 db.departmentalCandidate.belongsTo(db.student);
 
@@ -111,9 +112,10 @@ db.vote.belongsTo(db.facultyPoll, {
 db.vote.belongsTo(db.student, {
   foreignKey: "studentId",
 });
-db.vote.belongsTo(db.facultyCandidate, {
-  foreignKey: "candidateId",
-});
+
+// db.vote.belongsTo(db.facultyCandidate, {
+//   foreignKey: "candidateId",
+// });
 
 db.departmentvote.belongsTo(db.departmentalPoll, {
   foreignKey: "pollId",

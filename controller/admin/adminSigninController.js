@@ -14,7 +14,8 @@ const adminLogin = async (req, res) => {
       where: { email: email },
     });
 
-    if (!foundUser) return res.sendStatus(401);
+    if (!foundUser)
+      return res.status(500).json({ error: "Invalid email and password" });
     const match = await bycrypt.compare(password, foundUser.password);
 
     if (match) {
@@ -52,10 +53,11 @@ const adminLogin = async (req, res) => {
         department: `${foundUser.department_id}`,
         accessToken,
       });
+    } else {
+      res.status(500).json({ error: "Invalid email and password" });
     }
   } catch (err) {
-    // res.status(500).json({ message: "Email and password invalid" });
-    res.status(500).json(err.message);
+    res.status(500).json({ error: "Invalid email and password" });
   }
 };
 
