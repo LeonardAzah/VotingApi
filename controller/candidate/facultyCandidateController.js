@@ -77,7 +77,7 @@ const createFacultyCandidate = async (req, res) => {
       }
 
       const facultypoll = await FacultyPoll.findByPk(pollId);
-      const departmentPoll = await DepartmentPoll.findByPk(pollId);
+      const departmentPoll = await DepartmetnPoll.findByPk(pollId);
 
       if (facultypoll) {
         const duplicate = await FacultyCandidate.findOne({
@@ -196,8 +196,11 @@ const updateFacultyCandidateByMatricule = async (req, res) => {
       const { Id } = req.params;
       const { name, bio } = req.body;
       const { filename } = req.file;
-      console.log(name, bio);
-      console.log(filename);
+
+      // Generate new RSA key pair
+      const key = new NodeRSA({ b: 2048 });
+      const publicKey = key.exportKey("public");
+      const privateKey = key.exportKey("private");
 
       const fCandidate = await FacultyCandidate.findOne({ where: { id: Id } });
       const dCandidate = await DepartmentCandidate.findOne({
@@ -205,10 +208,22 @@ const updateFacultyCandidateByMatricule = async (req, res) => {
       });
 
       if (fCandidate) {
-        await fCandidate.update({ name, bio, image: filename });
+        await fCandidate.update({
+          name,
+          bio,
+          image: filename,
+          privateKey: privateKey,
+          publicKey: publicKey,
+        });
         res.status(200).json({ message: "Candidate updated successfully" });
       } else if (dCandidate) {
-        await dCandidate.update({ name, bio, image: filename });
+        await dCandidate.update({
+          name,
+          bio,
+          image: filename,
+          privateKey: privateKey,
+          publicKey: publicKey,
+        });
         res.status(200).json({ message: "Candidate updated successfully" });
       } else {
         return res.status(404).json({ error: "Candidate not found" });

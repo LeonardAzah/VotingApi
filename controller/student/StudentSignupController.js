@@ -12,15 +12,15 @@ const createStudent = async (req, res) => {
     const { facultyId, departmentId } = req.params;
     console.log(facultyId, departmentId);
 
-    // if (!username || !email || !matricule || !sex || !dateOfBirth || !password)
-    //   return res.status(400).json({ message: "User details required" });
+    if (!username || !email || !matricule || !sex || !dateOfBirth || !password)
+      return res.status(400).json({ error: "User details required" });
 
     const duplicate = await Student.findOne({
       where: { matricule: matricule },
     });
 
     if (duplicate) {
-      return res.status(409).json({ message: "Student already exist" });
+      return res.status(409).json({ error: "Student already exist" });
     }
 
     const faculty = await Faculty.findByPk(facultyId);
