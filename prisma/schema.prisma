@@ -1,0 +1,116 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Faculty {
+  id    String     @id @default(uuid())
+  name String  @unique
+  createdAt     DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+  departments Department[]
+
+}
+
+model Department {
+  id    String     @id @default(uuid())
+  name String  @unique
+  createdAt     DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+  facultyId   String @unique
+  faculty     Faculty     @relation(fields: [facultyId], references: [id], onDelete: Cascade )
+  @@index([facultyId])
+  users  User[]
+}
+
+
+
+model User {
+id               String     @id @default(uuid())
+email            String  @unique
+name             String
+image            String
+password         String
+role             UserRole @default(USER)
+matricule        String @unique
+dateOfBirth      DateTime
+sex               UserSex @default(MALE)
+createdAt     DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+verificationToken  String
+isVerified         Boolean @default(false)
+passwordToken      String
+passwordTokenExpirationDate DateTime
+verified          DateTime
+token         Token?
+departmentId      String  @unique
+department    Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade )
+@@index([departmentId])
+
+}
+
+model Token{
+  id            String        @id @default(uuid())
+  refreshToken           String  
+  ip                String
+  userAgent         String
+  isValid             Boolean @default(true)    
+  createdAt     DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+  userId        String      @unique 
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Election{
+    id            String        @id @default(uuid())
+    title       String
+    startDate   DateTime
+    endDate     DateTime
+    createdAt     DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+    isActive    Boolean  @default(false)
+    type  ElectionType  @default(FACULTY)
+    candidates    Candidate[]
+}
+
+model Candidate{
+    id            String        @id @default(uuid())
+    bio String
+    createdAt     DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+    electionId   String   @unique
+    election Election    @relation(fields: [electionId], references: [id],  onDelete: Cascade )
+    @@index([electionId])
+}
+
+model Vote{
+    id            String        @id @default(uuid())
+    encryptedVote   String
+    signature       String
+    createdAt     DateTime    @default(now())
+  updateAt      DateTime    @updatedAt
+
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+enum ElectionType {
+  DEPARTMENT
+  FACULTY
+}
+enum UserSex {
+  MALE
+  FEMALE
+  OTHERS
+}
+
