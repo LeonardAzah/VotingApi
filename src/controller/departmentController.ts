@@ -9,18 +9,9 @@ import {
 } from "../service/departmentService";
 import asyncHandler from "../utils/handleAsync";
 import { NotFoundError } from "../errors";
-import {
-  CreateDepartmentInput,
-  DeleteDepartmentInput,
-  ReadDepartmentInput,
-  UpdateDepartmentInput,
-} from "../shema/department.schema";
 
 export const createDepartmentHandler = asyncHandler(
-  async (
-    req: Request<{}, {}, CreateDepartmentInput["body"]>,
-    res: Response
-  ) => {
+  async (req: Request, res: Response) => {
     const data = req.body;
     const department = await createDepartment(data);
     res
@@ -39,10 +30,7 @@ export const getDepartmentsHandler = asyncHandler(
 );
 
 export const getDepartmentByIdHandler = asyncHandler(
-  async (
-    req: Request<ReadDepartmentInput["params"], {}, {}>,
-    res: Response
-  ) => {
+  async (req: Request, res: Response) => {
     const departmentId: string = req.params.id;
     const department = await getDepartmentById(departmentId);
 
@@ -56,14 +44,7 @@ export const getDepartmentByIdHandler = asyncHandler(
 );
 
 export const updateDepartmentHandler = asyncHandler(
-  async (
-    req: Request<
-      UpdateDepartmentInput["params"],
-      {},
-      UpdateDepartmentInput["body"]
-    >,
-    res: Response
-  ) => {
+  async (req: Request, res: Response) => {
     const departmentId: string = req.params.id;
     const data = req.body;
 
@@ -80,7 +61,7 @@ export const updateDepartmentHandler = asyncHandler(
 );
 
 export const deleteDepartmentHandler = asyncHandler(
-  async (req: Request<DeleteDepartmentInput["params"]>, res: Response) => {
+  async (req: Request, res: Response) => {
     const departmentId = req.params.id;
     const department = await getDepartmentById(departmentId);
     if (!department) {

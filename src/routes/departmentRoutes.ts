@@ -8,33 +8,16 @@ import {
 } from "../controller/departmentController";
 import validateResource from "../middleware/validateResource";
 import {
-  createDepartmentSchema,
-  deleteDepartmentSchema,
-  getDepartmentSchema,
-  updateDepartmentSchema,
-} from "../shema/department.schema";
+  authenticateUser,
+  authorizePermissions,
+} from "../middleware/authentication";
+
 const router = Router();
 
-router.post(
-  "/",
-  validateResource(createDepartmentSchema),
-  createDepartmentHandler
-);
+router.post("/", createDepartmentHandler);
 router.get("/", getDepartmentsHandler);
-router.put(
-  "/:id",
-  validateResource(updateDepartmentSchema),
-  updateDepartmentHandler
-);
-router.delete(
-  "/:id",
-  validateResource(deleteDepartmentSchema),
-  deleteDepartmentHandler
-);
-router.get(
-  "/:id",
-  validateResource(getDepartmentSchema),
-  getDepartmentByIdHandler
-);
+router.put("/:id", updateDepartmentHandler);
+router.delete("/:id", deleteDepartmentHandler);
+router.get("/:id", getDepartmentByIdHandler);
 
 export default router;

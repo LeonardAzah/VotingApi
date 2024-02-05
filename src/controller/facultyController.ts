@@ -6,18 +6,14 @@ import {
   updateFaculty,
   deleteFaculty,
 } from "../service/facultyService";
-import {
-  CreateFacultyInput,
-  DeleteFacultyInput,
-  ReadFacultyInput,
-  UpdateFacultyInput,
-} from "../shema/faculty.schema";
+
 import asyncHandler from "../utils/handleAsync";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../errors";
+import { json } from "body-parser";
 
 const createFacultyHandler = asyncHandler(
-  async (req: Request<{}, {}, CreateFacultyInput["body"]>, res: Response) => {
+  async (req: Request, res: Response) => {
     const name = req.body;
     const faculty = await createFaculty(name);
     res
@@ -36,13 +32,14 @@ const getFacultiesHandler = asyncHandler(
 );
 
 const getFacultyByIdHandler = asyncHandler(
-  async (req: Request<ReadFacultyInput["params"], {}, {}>, res: Response) => {
+  async (req: Request, res: Response) => {
     const facultyId = req.params.id;
     const faculty = await getFacultyById(facultyId);
 
     if (!faculty) {
       throw new NotFoundError("Faculty not found");
     }
+
     res
       .status(StatusCodes.OK)
       .json({ response: "successfull", data: { faculty } });
@@ -50,10 +47,7 @@ const getFacultyByIdHandler = asyncHandler(
 );
 
 const updateFacultyHandler = asyncHandler(
-  async (
-    req: Request<UpdateFacultyInput["params"], {}, UpdateFacultyInput["body"]>,
-    res: Response
-  ) => {
+  async (req: Request, res: Response) => {
     const facultyId = req.params.id;
     const data = req.body;
 
@@ -72,7 +66,7 @@ const updateFacultyHandler = asyncHandler(
 );
 
 const deleteFacultyHandler = asyncHandler(
-  async (req: Request<DeleteFacultyInput["params"]>, res: Response) => {
+  async (req: Request, res: Response) => {
     const facultyId: string = req.params.id;
 
     const faculty = await getFacultyById(facultyId);

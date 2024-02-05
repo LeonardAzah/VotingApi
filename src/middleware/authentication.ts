@@ -1,64 +1,59 @@
-// // const CustomError = require("../errors");
-// // const { PrismaClient } = require("@prisma/client");
+import { Request, Response, NextFunction } from "express";
+import { UnauthenticatedError, UnauthorizedError } from "../errors";
+import { isTokenValid } from "../utils/jwt";
+import { attachCookiesToResponse } from "../utils/jwt";
+import { findToken } from "../service/authService";
+import { User } from "../utils/createTokenUser";
+import AuthenticatedRequest from "../interface/AuthenticationRequest";
+import asyncHandler from "../utils/handleAsync";
 
-// // const { isTokenValid } = require("../utils");
-// // const { attachCookiesToResponse } = require("../utils");
+type Payload = {
+  user: User;
+  refreshToken: string;
+};
 
-// import { PrismaClient } from "@prisma/client";
-// import {
-//   BadRequestError,
-//   UnauthenticatedError,
-//   UnauthorizedError,
-// } from "../errors";
+const authenticateUser = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { refreshToken, accessToken } = req.signedCookies;
 
-// const prisma = new PrismaClient();
+    try {
+      if (accessToken) {
+        const payload: Payload = isTokenValid(accessToken);
+        req.body.user = payload.user;
+        return next();
+      }
 
-// const authenticateUser = async (req, res, next) => {
-//   const { refreshToken, accessToken } = req.signedCookies;
+      const payload = isTokenValid(refreshToken);
+      const existingToken = await findToken({
+        user: payload.user.id,
+        refreshToken: payload.refreshToken,
+      });
 
-//   try {
-//     if (accessToken) {
-//       const payload = isTokenValid(accessToken);
+      if (!existingToken || !existingToken?.isValid) {
+        throw new UnauthenticatedError("Authentication Invalid");
+      }
 
-//       req.user = payload.user;
-//       return next();
-//     }
+      attachCookiesToResponse({
+        res,
+        user: payload.user,
+        refreshToken: existingToken.refreshToken,
+      });
 
-//     const payload = isTokenValid(refreshToken);
+      req.body.user = payload.user;
+      next();
+    } catch (error) {
+      throw next(new UnauthenticatedError("Authentication Invalid"));
+    }
+  }
+);
 
-//     const existingToken = await prisma.token.findUnique({
-//       where: {
-//         userId: payload.user.userId,
-//         refreshToken: payload.refreshToken,
-//       },
-//     });
-//     if (!existingToken || !existingToken?.isValid) {
-//       throw new CustomError.UnauthenticatedError("Authentication Invalid");
-//     }
+const authorizePermissions = (...roles: string[]) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    if (!roles.includes(req.user.role)) {
+      throw next(new UnauthorizedError("Unauthorized to access this resource"));
+    }
+    next();
+  };
+};
 
-//     attachCookiesToResponse({
-//       res,
-//       user: payload.user,
-//       refreshToken: existingToken.refreshToken,
-//     });
-//     req.user = payload.user;
-//     next();
-//   } catch (error) {
-//     throw new CustomError.UnauthenticatedError("Authentication Invalid");
-//   }
-// };
-// const authorizePermissions = (...roles) => {
-//   return (req, res, next) => {
-//     if (!roles.includes(req.user.role)) {
-//       throw new CustomError.UnauthorizedError(
-//         "Unauthorized to access this route"
-//       );
-//     }
-//     next();
-//   };
-// };
-
-// module.exports = {
-//   authenticateUser,
-//   authorizePermissions,
-// };
+export { authenticateUser, authorizePermissions };

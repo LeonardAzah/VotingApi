@@ -18,7 +18,6 @@ CREATE TABLE `Department` (
     `facultyId` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `Department_name_key`(`name`),
-    UNIQUE INDEX `Department_facultyId_key`(`facultyId`),
     INDEX `Department_facultyId_idx`(`facultyId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -30,30 +29,30 @@ CREATE TABLE `User` (
     `name` VARCHAR(191) NOT NULL,
     `image` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
-    `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+    `role` ENUM('STUDENT', 'ADMIN') NOT NULL DEFAULT 'STUDENT',
     `matricule` VARCHAR(191) NOT NULL,
     `dateOfBirth` DATETIME(3) NOT NULL,
-    `sex` ENUM('MALE', 'FEMALE', 'OTHERS') NOT NULL DEFAULT 'MALE',
+    `sex` ENUM('MALE', 'FEMALE', 'OTHERS') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL,
-    `verificationToken` VARCHAR(191) NOT NULL,
+    `verificationToken` VARCHAR(191) NULL,
     `isVerified` BOOLEAN NOT NULL DEFAULT false,
-    `passwordToken` VARCHAR(191) NOT NULL,
-    `passwordTokenExpirationDate` DATETIME(3) NOT NULL,
-    `verified` DATETIME(3) NOT NULL,
+    `passwordToken` VARCHAR(191) NULL,
+    `passwordTokenExpirationDate` DATETIME(3) NULL,
+    `verified` DATETIME(3) NULL,
+    `otp` VARCHAR(191) NOT NULL,
     `departmentId` VARCHAR(191) NOT NULL,
 
     UNIQUE INDEX `User_email_key`(`email`),
     UNIQUE INDEX `User_matricule_key`(`matricule`),
-    UNIQUE INDEX `User_departmentId_key`(`departmentId`),
     INDEX `User_departmentId_idx`(`departmentId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Token` (
+CREATE TABLE `passwordOTP` (
     `id` VARCHAR(191) NOT NULL,
-    `refreshToken` VARCHAR(191) NOT NULL,
+    `otp` VARCHAR(191) NOT NULL,
     `ip` VARCHAR(191) NOT NULL,
     `userAgent` VARCHAR(191) NOT NULL,
     `isValid` BOOLEAN NOT NULL DEFAULT true,
@@ -61,7 +60,7 @@ CREATE TABLE `Token` (
     `updateAt` DATETIME(3) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `Token_userId_key`(`userId`),
+    UNIQUE INDEX `passwordOTP_userId_key`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -87,7 +86,6 @@ CREATE TABLE `Candidate` (
     `updateAt` DATETIME(3) NOT NULL,
     `electionId` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `Candidate_electionId_key`(`electionId`),
     INDEX `Candidate_electionId_idx`(`electionId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -110,7 +108,7 @@ ALTER TABLE `Department` ADD CONSTRAINT `Department_facultyId_fkey` FOREIGN KEY 
 ALTER TABLE `User` ADD CONSTRAINT `User_departmentId_fkey` FOREIGN KEY (`departmentId`) REFERENCES `Department`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Token` ADD CONSTRAINT `Token_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `passwordOTP` ADD CONSTRAINT `passwordOTP_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Candidate` ADD CONSTRAINT `Candidate_electionId_fkey` FOREIGN KEY (`electionId`) REFERENCES `Election`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
