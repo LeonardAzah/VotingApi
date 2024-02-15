@@ -6,7 +6,7 @@ import {
   logout,
   resetPassword,
   verifyEmail,
-} from "../controller/authController";
+} from "../controller/auth.controller";
 import validate from "../middleware/validateResource";
 import { authenticateUser } from "../middleware/authentication";
 

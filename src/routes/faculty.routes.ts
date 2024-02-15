@@ -5,7 +5,7 @@ import {
   getFacultiesHandler,
   getFacultyByIdHandler,
   updateFacultyHandler,
-} from "../controller/facultyController";
+} from "../controller/faculty.controller";
 import validateResource from "../middleware/validateResource";
 
 const router = Router();

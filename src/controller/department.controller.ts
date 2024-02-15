@@ -6,7 +6,7 @@ import {
   getDepartmentById,
   updateDepartment,
   deleteDepartment,
-} from "../service/departmentService";
+} from "../service/department.service";
 import asyncHandler from "../utils/handleAsync";
 import { NotFoundError } from "../errors";
 

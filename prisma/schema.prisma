@@ -17,6 +17,7 @@ model Faculty {
   createdAt     DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
   departments Department[]
+  election    Election[]
 
 }
 
@@ -27,6 +28,7 @@ model Department {
   updatedAt      DateTime    @updatedAt
   facultyId   String 
   users  User[]
+  election  Election[]
   faculty     Faculty     @relation(fields: [facultyId], references: [id], onDelete: Cascade )
   @@index([facultyId])
 }
@@ -37,10 +39,10 @@ model User {
 id               String     @id @default(uuid())
 email            String  @unique
 name             String
-image            String
+image            String?
 password         String
 role             UserRole @default(STUDENT)
-matricule        String  @unique
+matricule        String?  @unique
 dateOfBirth      DateTime
 sex               UserSex 
 createdAt     DateTime    @default(now())
@@ -77,10 +79,19 @@ model Election{
     startDate   DateTime
     endDate     DateTime
     createdAt     DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+    updatedAt      DateTime    @updatedAt
     isActive    Boolean  @default(false)
     type  ElectionType  @default(FACULTY)
+
+    departmentId    String?
+    facultyId        String?
+
     candidates    Candidate[]
+
+     faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade )
+
+    department    Department?  @relation(fields: [departmentId], references: [id], onDelete: Cascade )
+
 }
 
 model Candidate{

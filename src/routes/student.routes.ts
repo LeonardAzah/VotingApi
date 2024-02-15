@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { createStudentHandler } from "../controller/studentController";
+import { createStudentHandler } from "../controller/student.controller";
 import validate from "../middleware/validateResource";
 import { createStudentValidator } from "../validators/userValidator";
 

@@ -8,10 +8,12 @@ import swaggerDocs from "./utils/swagger";
 import * as swaggerDocument from "./swagger.json";
 import cookieParser from "cookie-parser";
 
-import facultyRoutes from "./routes/facultyRoutes";
-import departmentRoutes from "./routes/departmentRoutes";
-import studentRoutes from "./routes/studentRoutes";
-import authRoutes from "./routes/authRoutes";
+import facultyRoutes from "./routes/faculty.routes";
+import departmentRoutes from "./routes/department.routes";
+import studentRoutes from "./routes/student.routes";
+import authRoutes from "./routes/auth.routes";
+import administratorRoutes from "./routes/administrator.routes";
+import electionRoutes from "./routes/election.routes";
 
 dotenv.config();
 const app = express();
@@ -25,6 +27,9 @@ app.use("/api/v1/faculties", facultyRoutes);
 app.use("/api/v1/departments", departmentRoutes);
 app.use("/api/v1/students", studentRoutes);
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/admins", administratorRoutes);
+app.use("api/v1/election", electionRoutes);
+
 app.get("/", (req, res) => {
   res.send("School voting system");
 });

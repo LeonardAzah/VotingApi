@@ -1,5 +1,5 @@
 import { prisma } from "../utils/db.server";
-import { Faculty } from "./facultyService";
+import { Faculty } from "./faculty.service";
 
 export type Department = {
   name: string;

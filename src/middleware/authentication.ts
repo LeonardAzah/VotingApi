@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { UnauthenticatedError, UnauthorizedError } from "../errors";
 import { isTokenValid } from "../utils/jwt";
 import { attachCookiesToResponse } from "../utils/jwt";
-import { findToken } from "../service/authService";
+import { findToken } from "../service/auth.service";
 import { User } from "../utils/createTokenUser";
 import AuthenticatedRequest from "../interface/AuthenticationRequest";
 import asyncHandler from "../utils/handleAsync";

@@ -5,7 +5,7 @@ import {
   getFacultyById,
   updateFaculty,
   deleteFaculty,
-} from "../service/facultyService";
+} from "../service/faculty.service";
 
 import asyncHandler from "../utils/handleAsync";
 import { StatusCodes } from "http-status-codes";

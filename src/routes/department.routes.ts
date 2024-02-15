@@ -5,7 +5,7 @@ import {
   getDepartmentsHandler,
   updateDepartmentHandler,
   deleteDepartmentHandler,
-} from "../controller/departmentController";
+} from "../controller/department.controller";
 import validateResource from "../middleware/validateResource";
 import {
   authenticateUser,

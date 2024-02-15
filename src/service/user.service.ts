@@ -1,5 +1,6 @@
+import { IUser } from "../interface/user.interface";
 import { prisma } from "../utils/db.server";
-
+import { IStudent } from "../interface/student.interface";
 export type Student = {
   name: string;
   email: string;
@@ -43,8 +44,9 @@ type UserSex = "MALE" | "FEMALE" | "OTHERS";
 type UserRole = "STUDENT" | "ADMIN";
 
 export const createStudent = async (
-  user: Omit<Student, "verified" | "isVerified">
-): Promise<Student> => {
+  // user: Omit<Student, "verified" | "isVerified">
+  user: IStudent
+): Promise<IStudent> => {
   const {
     name,
     email,
@@ -71,9 +73,7 @@ export const createStudent = async (
   });
 };
 
-export const createAdministrator = async (
-  user: SchoolAdmin
-): Promise<SchoolAdmin> => {
+export const createAdministrator = async (user: IUser): Promise<IUser> => {
   const { name, email, password, dateOfBirth, departmentId, role, sex } = user;
   return prisma.user.create({
     data: {
@@ -82,7 +82,7 @@ export const createAdministrator = async (
       password,
       dateOfBirth,
       departmentId,
-      role,
+      role: "ADMIN",
       sex,
     },
   });
@@ -90,7 +90,7 @@ export const createAdministrator = async (
 
 export const findUser = async (
   identifier: string
-): Promise<StudentRead | null> => {
+): Promise<IStudent | null> => {
   return prisma.user.findFirst({
     where: {
       OR: [
@@ -104,8 +104,8 @@ export const findUser = async (
 
 export const updateUser = async (
   userId: string,
-  updates: Partial<Student>
-): Promise<Student | null> => {
+  updates: Partial<IStudent>
+): Promise<IStudent | null> => {
   const updatedStudent = await prisma.user.update({
     where: { id: userId },
     data: updates,

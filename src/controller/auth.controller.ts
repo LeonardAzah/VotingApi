@@ -3,11 +3,11 @@ import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
 import { UnauthenticatedError, BadRequestError } from "../errors";
 import asyncHandler from "../utils/handleAsync";
-import { findUser, updateUser } from "../service/userService";
+import { findUser, updateUser } from "../service/user.service";
 import { createTokenUser } from "../utils/createTokenUser";
-import { deleteToken, findToken } from "../service/authService";
+import { deleteToken, findToken } from "../service/auth.service";
 import { attachCookiesToResponse } from "../utils/jwt";
-import { createToken } from "../service/authService";
+import { createToken } from "../service/auth.service";
 import crypto from "crypto";
 import logger from "../utils/logger";
 import otpGenerator from "otp-generator";
@@ -120,7 +120,7 @@ export const forgotPassword = asyncHandler(
       const passwordTokenExpirationDate = expirationDate.toISOString();
       const updates = {
         otp: otp,
-        passwordTokenExpirationDate: passwordTokenExpirationDate,
+        passwordTokenExpirationDate: expirationDate,
       };
       await updateUser(user.id, updates);
     }
@@ -162,7 +162,7 @@ export const resetPassword = asyncHandler(
         const updates = {
           password: passwordHash,
           otp: "",
-          passwordTokenExpirationDate: "",
+          passwordTokenExpirationDate: null,
         };
 
         await updateUser(user.id, updates);
