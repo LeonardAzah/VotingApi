@@ -14,6 +14,7 @@ import studentRoutes from "./routes/student.routes";
 import authRoutes from "./routes/auth.routes";
 import administratorRoutes from "./routes/administrator.routes";
 import electionRoutes from "./routes/election.routes";
+import candidateRoutes from "./routes/candidate.routes";
 
 dotenv.config();
 const app = express();
@@ -29,6 +30,7 @@ app.use("/api/v1/students", studentRoutes);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/admins", administratorRoutes);
 app.use("api/v1/election", electionRoutes);
+app.use("/api/v1/candidates", candidateRoutes);
 
 app.get("/", (req, res) => {
   res.send("School voting system");

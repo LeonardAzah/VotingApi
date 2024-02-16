@@ -10,7 +10,6 @@ import {
 import asyncHandler from "../utils/handleAsync";
 import { StatusCodes } from "http-status-codes";
 import { NotFoundError } from "../errors";
-import { json } from "body-parser";
 
 const createFacultyHandler = asyncHandler(
   async (req: Request, res: Response) => {

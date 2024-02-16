@@ -52,6 +52,7 @@ passwordTokenExpirationDate DateTime?
 verified          DateTime?
 otp                String?
 token         Token?
+candidate       Candidate?
 departmentId      String  
 department    Department  @relation(fields: [departmentId], references: [id], onDelete: Cascade )
 @@index([departmentId])
@@ -97,9 +98,14 @@ model Election{
 model Candidate{
     id            String        @id @default(uuid())
     bio String
+    applicationLetter String
+    transcript    String
+    approved     Boolean  @default(false)
     createdAt     DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+    updatedAt      DateTime    @updatedAt
+    matricule      String   @unique()
     electionId   String   
+    user      User  @relation(fields: [matricule], references: [matricule])
     election Election    @relation(fields: [electionId], references: [id],  onDelete: Cascade )
     @@index([electionId])
 }
