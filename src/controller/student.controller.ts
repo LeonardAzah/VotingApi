@@ -8,6 +8,7 @@ import otpGenerator from "otp-generator";
 import sendVerificationEmail from "../utils/sendVerificationEmail";
 import { getDepartmentById } from "../service/department.service";
 import { IStudent } from "../interface/student.interface";
+import createHash from "../utils/createHash";
 
 export const createStudentHandler = asyncHandler(
   async (req: Request, res: Response) => {
@@ -30,9 +31,10 @@ export const createStudentHandler = asyncHandler(
       specialChars: false,
     });
 
-    const salt = await bcrypt.genSalt(10);
+    data.password = await createHash(data.password);
+    const hashOTP = await createHash(otp);
 
-    data.password = await bcrypt.hash(data.password, salt);
+    data.otp = hashOTP;
 
     const student = await createStudent(data);
 

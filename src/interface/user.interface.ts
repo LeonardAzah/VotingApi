@@ -9,6 +9,7 @@ export interface IUser {
   otp: string | null;
   role: "STUDENT" | "ADMIN";
   verified?: Date | null;
+  voteOtp: string | null;
   isVerified?: boolean;
   passwordTokenExpirationDate: Date | null;
 }

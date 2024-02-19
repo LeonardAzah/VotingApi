@@ -1,3 +1,4 @@
+import { IUser } from "../interface/user.interface";
 import { prisma } from "../utils/db.server";
 type Candidate = {
   id: string;
@@ -81,6 +82,23 @@ export const findCandidateById = async (
 ): Promise<Candidate | null> => {
   return prisma.candidate.findUnique({
     where: { id },
+    select: {
+      id: true,
+      bio: true,
+      applicationLetter: true,
+      transcript: true,
+      matricule: true,
+      electionId: true,
+      user: {
+        select: {
+          name: true,
+          email: true,
+          image: true,
+          sex: true,
+          dateOfBirth: true,
+        },
+      },
+    },
   });
 };
 export const updateCandidate = async (
@@ -96,5 +114,20 @@ export const updateCandidate = async (
 export const deleteCandidate = async (id: string): Promise<void> => {
   await prisma.candidate.delete({
     where: { id },
+  });
+};
+
+export const approveCandidate = async (
+  id: string,
+  publickey: string,
+  privatekey: string
+): Promise<void> => {
+  await prisma.candidate.update({
+    where: { id },
+    data: {
+      approved: true,
+      publickey,
+      privatekey,
+    },
   });
 };

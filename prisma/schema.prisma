@@ -51,6 +51,7 @@ isVerified         Boolean @default(false)
 passwordTokenExpirationDate DateTime?
 verified          DateTime?
 otp                String?
+voteOtp             String?
 token         Token?
 candidate       Candidate?
 departmentId      String  
@@ -100,6 +101,8 @@ model Candidate{
     bio String
     applicationLetter String
     transcript    String
+    publickey     String?
+    privatekey      String?
     approved     Boolean  @default(false)
     createdAt     DateTime    @default(now())
     updatedAt      DateTime    @updatedAt

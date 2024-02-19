@@ -1,6 +1,8 @@
 import { Router } from "express";
 import {
+  approveCandidateHandler,
   createCandidateHandler,
+  declineCandidateHandler,
   deleteCandidateHandler,
   getCandidateByIdHandler,
   getCandidateHandler,
@@ -12,7 +14,9 @@ const router = Router();
 
 router.post("/", createCandidateHandler);
 router.get("/", getCandidateHandler);
-router.put("/:id", updateCandidateHandler);
+router.patch("/approve/:id", approveCandidateHandler);
+router.patch("/decline/:id", declineCandidateHandler);
+router.patch("/:id", updateCandidateHandler);
 
 router.delete("/:id", deleteCandidateHandler);
 router.get("/:id", getCandidatesByElectionHandler);
