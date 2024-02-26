@@ -8,6 +8,16 @@ type Candidate = {
   matricule: string;
   electionId: string;
 };
+type CandidateRead = {
+  id: string;
+  bio: string;
+  applicationLetter: string;
+  transcript: string;
+  matricule: string;
+  electionId: string;
+  publickey: string | null;
+  privatekey: string | null;
+};
 
 export const addCandidate = async (
   candidate: Omit<Candidate, "id">
@@ -55,7 +65,7 @@ export const findAllCandidates = async (): Promise<Candidate[]> => {
 };
 export const findCandidatesByElection = async (
   electionId: string
-): Promise<Candidate[]> => {
+): Promise<CandidateRead[]> => {
   return prisma.candidate.findMany({
     where: { electionId },
     select: {
@@ -65,6 +75,8 @@ export const findCandidatesByElection = async (
       transcript: true,
       matricule: true,
       electionId: true,
+      publickey: true,
+      privatekey: true,
       user: {
         select: {
           name: true,
@@ -79,7 +91,7 @@ export const findCandidatesByElection = async (
 };
 export const findCandidateById = async (
   id: string
-): Promise<Candidate | null> => {
+): Promise<CandidateRead | null> => {
   return prisma.candidate.findUnique({
     where: { id },
     select: {
@@ -89,6 +101,8 @@ export const findCandidateById = async (
       transcript: true,
       matricule: true,
       electionId: true,
+      publickey: true,
+      privatekey: true,
       user: {
         select: {
           name: true,

@@ -52,6 +52,7 @@ passwordTokenExpirationDate DateTime?
 verified          DateTime?
 otp                String?
 voteOtp             String?
+vote      Vote[]
 token         Token?
 candidate       Candidate?
 departmentId      String  
@@ -89,6 +90,7 @@ model Election{
     facultyId        String?
 
     candidates    Candidate[]
+    vote          Vote[]
 
      faculty     Faculty?     @relation(fields: [facultyId], references: [id], onDelete: Cascade )
 
@@ -116,7 +118,10 @@ model Candidate{
 model Vote{
     id            String        @id @default(uuid())
     encryptedVote   String
-    signature       String
+    electionId     String
+    studentId       String
+    election    Election   @relation(fields: [electionId], references: [id])
+    student       User   @relation(fields: [studentId], references: [id])
     createdAt     DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 

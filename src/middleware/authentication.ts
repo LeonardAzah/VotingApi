@@ -48,8 +48,8 @@ const authenticateUser = asyncHandler(
 );
 
 const authorizePermissions = (...roles: string[]) => {
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    if (!roles.includes(req.user.role)) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!roles.includes(req.body.user.role)) {
       throw next(new UnauthorizedError("Unauthorized to access this resource"));
     }
     next();

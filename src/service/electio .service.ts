@@ -1,6 +1,7 @@
 import { prisma } from "../utils/db.server";
 
-type Election = {
+export type Election = {
+  id: string;
   title: string;
   startDate: Date;
   endDate: Date;
@@ -10,7 +11,7 @@ type Election = {
 };
 
 export const createFacultyElection = async (
-  election: Election
+  election: Omit<Election, "id">
 ): Promise<Election> => {
   const { title, startDate, endDate, type, facultyId } = election;
 
@@ -23,6 +24,7 @@ export const createFacultyElection = async (
       facultyId,
     },
     select: {
+      id: true,
       title: true,
       startDate: true,
       endDate: true,
@@ -45,6 +47,7 @@ export const createDepartmentElection = async (
       departmentId,
     },
     select: {
+      id: true,
       title: true,
       startDate: true,
       endDate: true,
@@ -56,6 +59,7 @@ export const createDepartmentElection = async (
 export const getElections = async (): Promise<Election[]> => {
   return prisma.election.findMany({
     select: {
+      id: true,
       title: true,
       startDate: true,
       endDate: true,
@@ -68,6 +72,7 @@ export const getElectionById = async (id: string): Promise<Election | null> => {
   return prisma.election.findUnique({
     where: { id },
     select: {
+      id: true,
       title: true,
       startDate: true,
       endDate: true,
@@ -80,6 +85,7 @@ export const getDepartmentElections = async (): Promise<Election[]> => {
   return prisma.election.findMany({
     where: { type: "DEPARTMENT" },
     select: {
+      id: true,
       title: true,
       startDate: true,
       endDate: true,
@@ -92,6 +98,7 @@ export const getFacultyElections = async (): Promise<Election[]> => {
   return prisma.election.findMany({
     where: { type: "FACULTY" },
     select: {
+      id: true,
       title: true,
       startDate: true,
       endDate: true,
@@ -108,6 +115,7 @@ export const updateElection = async (
     where: { id },
     data: updates,
     select: {
+      id: true,
       title: true,
       startDate: true,
       endDate: true,
